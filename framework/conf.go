@@ -2,23 +2,16 @@ package framework
 
 import (
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
 
+	"../helper"
 	"../model"
 )
 
+// ReadSysConf
+// 读取sysConfig
 func ReadSysConf() *model.SysConf {
 	conf := &model.SysConf{}
-	f, err := ioutil.ReadFile("./conf/sys.conf.json")
-	if err != nil {
-		fmt.Println("sys.conf.json error")
-		return nil
-	}
-	json.Unmarshal(f, conf)
+	f := helper.GetFileContentByName("./conf/sys.conf.json")
+	json.Unmarshal([]byte(f), conf)
 	return conf
-}
-
-func ReadConf() {
-
 }

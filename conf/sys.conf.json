@@ -1,4 +1,4 @@
 {
-    "port": 8001,
-    "AlbumPath": "C://GoWorkSpace//src//album//conf"
+    "port": 9001,
+    "AlbumPath": "C://GoWorkSpace//src//album"
 }
