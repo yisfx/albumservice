@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"../helper"
@@ -14,7 +13,6 @@ type AlbumManage struct {
 }
 
 func (controller *AlbumManage) GeAlbumList(response http.ResponseWriter, request *http.Request) {
-	fmt.Println("in")
 	albumHelper := helper.AlbumHelper{}
 	albumList := albumHelper.BuildAlbumList(controller.SysConf.AlbumPath)
 	resp, err := json.Marshal(albumList)
