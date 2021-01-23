@@ -12,12 +12,10 @@ import (
 func main() {
 	conf := *framework.ReadSysConf()
 	fmt.Println(conf)
-	manageController := &controller.AlbumManage{}
-
-	manageController.SysConf = conf
+	manageController := controller.NewAlbumManageController(conf)
 
 	http.HandleFunc("/Manage/AlbumList", manageController.GeAlbumList)
-
+	http.HandleFunc("/Manage/AddAlbum", manageController.AddAlbum)
 	http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
 		response.Write([]byte("hello world"))
 	})

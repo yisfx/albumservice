@@ -61,3 +61,19 @@ func BuildPicForAlbum(album model.Album) []model.Picture {
 	}
 	return picList
 }
+
+func (this *AlbumHelper) ExistsAlbum(albumName string, path string) bool {
+	albumList := this.BuildAlbumList(path)
+	b := false
+	for _, a := range albumList {
+		if strings.EqualFold(a.Name, albumName) {
+			b = true
+			break
+		}
+	}
+	return b
+}
+
+func (this *AlbumHelper) CreateAlbum(album model.Album) {
+
+}
