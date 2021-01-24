@@ -2,7 +2,9 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"path"
 
 	"../helper"
 	"../model"
@@ -38,6 +40,7 @@ func (controller *AlbumManage) AddAlbum(resp http.ResponseWriter, request *http.
 	json.Unmarshal(helper.ReadBody(request.Body), a)
 	albumHelper := helper.AlbumHelper{}
 	result := new(responseModel.AddAlbumResponse)
+	a.Path = path.Join(controller.SysConf.AlbumPath, a.Name)
 	if albumHelper.ExistsAlbum(a.Name, controller.SysConf.AlbumPath) {
 		result.BaseResponse.Result = false
 		result.BaseResponse.ErrorMessage = "album exists"
@@ -46,5 +49,6 @@ func (controller *AlbumManage) AddAlbum(resp http.ResponseWriter, request *http.
 		result.BaseResponse.Result = true
 	}
 	r, _ := json.Marshal(result)
+	fmt.Println(string(r))
 	resp.Write(r)
 }

@@ -8,6 +8,8 @@ import (
 	"../model"
 )
 
+const AMBUM_JSON = "album.json"
+
 type AlbumHelper struct {
 }
 
@@ -18,7 +20,7 @@ func (this *AlbumHelper) BuildAlbumList(dirPath string) []model.Album {
 		return albumList
 	}
 	for _, album := range pathList {
-		albumConfPath := path.Join(dirPath, album, "album.json")
+		albumConfPath := path.Join(dirPath, album, AMBUM_JSON)
 		albumConf := &model.Album{}
 		confStr := GetFileContentByName(path.Join(albumConfPath))
 		json.Unmarshal([]byte(confStr), albumConf)
@@ -75,5 +77,9 @@ func (this *AlbumHelper) ExistsAlbum(albumName string, path string) bool {
 }
 
 func (this *AlbumHelper) CreateAlbum(album model.Album) {
-
+	///create folder
+	CreateFolder(album.Path)
+	///write AMBUM_JSON
+	content, _ := json.Marshal(album)
+	WriteFile(string(content), path.Join(album.Path, AMBUM_JSON))
 }

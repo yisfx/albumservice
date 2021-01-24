@@ -2,6 +2,7 @@ package helper
 
 import (
 	"io/ioutil"
+	"os"
 	"strings"
 )
 
@@ -47,4 +48,21 @@ func GetFileContentByName(name string) string {
 		return ""
 	}
 	return string(f)
+}
+
+func CreateFolder(dirPath string) {
+	os.Mkdir(dirPath, os.ModePerm)
+}
+
+func WriteFile(content string, fileName string) {
+	var f *os.File
+	if _, err := os.Stat(fileName); os.IsNotExist(err) {
+		f, _ = os.Create(fileName)
+		///不存在
+	} else {
+		///存在
+		f, _ = os.Open(fileName)
+	}
+	f.WriteString(content)
+	f.Close()
 }
