@@ -6,6 +6,7 @@ import (
 
 	"../helper"
 	"../model"
+	responseModel "../model/response"
 )
 
 type AlbumManage struct {
@@ -18,26 +19,32 @@ func NewAlbumManageController(SysConf model.SysConf) *AlbumManage {
 	return o
 }
 
-func (controller *AlbumManage) GeAlbumList(response http.ResponseWriter, request *http.Request) {
+func (controller *AlbumManage) GeAlbumList(res http.ResponseWriter, request *http.Request) {
 	albumHelper := helper.AlbumHelper{}
 	albumList := albumHelper.BuildAlbumList(controller.SysConf.AlbumPath)
-	resp, err := json.Marshal(albumList)
+	result := new(responseModel.AlbumListResponse)
+	result.BaseResponse.Result = true
+	result.AlbumList = albumList
+	resp, err := json.Marshal(result)
 	if err == nil {
-		response.Write(resp)
+		res.Write(resp)
 	} else {
-		response.Write([]byte("500"))
+		res.Write([]byte("500"))
 	}
 }
 
-func (controller *AlbumManage) AddAlbum(response http.ResponseWriter, request *http.Request) {
+func (controller *AlbumManage) AddAlbum(resp http.ResponseWriter, request *http.Request) {
 	a := &model.Album{}
 	json.Unmarshal(helper.ReadBody(request.Body), a)
 	albumHelper := helper.AlbumHelper{}
+	result := new(responseModel.AddAlbumResponse)
 	if albumHelper.ExistsAlbum(a.Name, controller.SysConf.AlbumPath) {
-		response.Write([]byte("exists"))
+		result.BaseResponse.Result = false
+		result.BaseResponse.ErrorMessage = "album exists"
 	} else {
 		albumHelper.CreateAlbum(*a)
-		response.Write([]byte("success"))
+		result.BaseResponse.Result = true
 	}
-
+	r, _ := json.Marshal(result)
+	resp.Write(r)
 }
