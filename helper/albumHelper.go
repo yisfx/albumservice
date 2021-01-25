@@ -33,6 +33,18 @@ func (this *AlbumHelper) BuildAlbumList(dirPath string) []model.Album {
 	return albumList
 }
 
+func (this *AlbumHelper) GetAlbum(dirPath string) model.Album {
+	albumConfPath := path.Join(dirPath, AMBUM_JSON)
+	albumConf := &model.Album{}
+	confStr := GetFileContentByName(path.Join(albumConfPath))
+	json.Unmarshal([]byte(confStr), albumConf)
+	if albumConf != nil {
+		albumConf.Path = dirPath
+		albumConf.PicList = BuildPicForAlbum(*albumConf)
+	}
+	return *albumConf
+}
+
 func getPicName(picName string) string {
 	return strings.Split(picName, "-")[0]
 }
@@ -82,4 +94,8 @@ func (this *AlbumHelper) CreateAlbum(album model.Album) {
 	///write AMBUM_JSON
 	content, _ := json.Marshal(album)
 	WriteFile(string(content), path.Join(album.Path, AMBUM_JSON))
+}
+
+func NewAlbumHelper() *AlbumHelper {
+	return &AlbumHelper{}
 }

@@ -8,6 +8,7 @@ import (
 
 	"../helper"
 	"../model"
+	requestModel "../model/request"
 	responseModel "../model/response"
 )
 
@@ -38,7 +39,7 @@ func (controller *AlbumManage) GeAlbumList(res http.ResponseWriter, request *htt
 func (controller *AlbumManage) AddAlbum(resp http.ResponseWriter, request *http.Request) {
 	a := &model.Album{}
 	json.Unmarshal(helper.ReadBody(request.Body), a)
-	albumHelper := helper.AlbumHelper{}
+	albumHelper := helper.NewAlbumHelper()
 	result := new(responseModel.AddAlbumResponse)
 	a.Path = path.Join(controller.SysConf.AlbumPath, a.Name)
 	if albumHelper.ExistsAlbum(a.Name, controller.SysConf.AlbumPath) {
@@ -51,4 +52,21 @@ func (controller *AlbumManage) AddAlbum(resp http.ResponseWriter, request *http.
 	r, _ := json.Marshal(result)
 	fmt.Println(string(r))
 	resp.Write(r)
+}
+
+func (controller *AlbumManage) GetAlbumPicList(resp http.ResponseWriter, request *http.Request) {
+	r := &requestModel.GetAlbumPicListRequest{}
+	json.Unmarshal(helper.ReadBody(request.Body), r)
+	albumHelper := helper.NewAlbumHelper()
+	result := new(responseModel.GetAlbumPicListResponse)
+	if !albumHelper.ExistsAlbum(r.AlbumName, controller.SysConf.AlbumPath) {
+		result.BaseResponse.Result = false
+		result.BaseResponse.ErrorMessage = "hasn't this Album"
+	} else {
+		result.BaseResponse.Result = true
+		result.Album = albumHelper.GetAlbum(path.Join(controller.SysConf.AlbumPath, r.AlbumName))
+	}
+
+	b, _ := json.Marshal(result)
+	resp.Write(b)
 }

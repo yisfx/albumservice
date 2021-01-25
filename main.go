@@ -16,6 +16,7 @@ func main() {
 
 	http.HandleFunc("/Manage/AlbumList", manageController.GeAlbumList)
 	http.HandleFunc("/Manage/AddAlbum", manageController.AddAlbum)
+	http.HandleFunc("/Manage/GetAlbum", manageController.GetAlbumPicList)
 	http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
 		response.Write([]byte("hello world"))
 	})
