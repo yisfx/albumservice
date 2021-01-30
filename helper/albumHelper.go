@@ -95,6 +95,10 @@ func (this *AlbumHelper) CreateAlbum(album model.Album) {
 	content, _ := json.Marshal(album)
 	WriteFile(string(content), path.Join(album.Path, AMBUM_JSON))
 }
+func (this *AlbumHelper) EditAlbum(album model.Album) {
+	content, _ := json.Marshal(album)
+	WriteFile(string(content), path.Join(album.Path, AMBUM_JSON))
+}
 
 func NewAlbumHelper() *AlbumHelper {
 	return &AlbumHelper{}

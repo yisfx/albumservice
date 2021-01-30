@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -55,14 +56,11 @@ func CreateFolder(dirPath string) {
 }
 
 func WriteFile(content string, fileName string) {
-	var f *os.File
-	if _, err := os.Stat(fileName); os.IsNotExist(err) {
-		f, _ = os.Create(fileName)
-		///不存在
-	} else {
-		///存在
-		f, _ = os.Open(fileName)
+
+	f, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 6)
+	defer f.Close()
+	if err != nil {
+		fmt.Println(err)
 	}
 	f.WriteString(content)
-	f.Close()
 }

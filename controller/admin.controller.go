@@ -37,15 +37,20 @@ func (controller *AlbumManage) GeAlbumList(res http.ResponseWriter, request *htt
 }
 
 func (controller *AlbumManage) AddAlbum(resp http.ResponseWriter, request *http.Request) {
+
 	a := &model.Album{}
 	json.Unmarshal(helper.ReadBody(request.Body), a)
 	albumHelper := helper.NewAlbumHelper()
 	result := new(responseModel.AddAlbumResponse)
 	a.Path = path.Join(controller.SysConf.AlbumPath, a.Name)
 	if albumHelper.ExistsAlbum(a.Name, controller.SysConf.AlbumPath) {
-		result.BaseResponse.Result = false
-		result.BaseResponse.ErrorMessage = "album exists"
+		///edit
+		albumHelper.EditAlbum(*a)
+		result.BaseResponse.Result = true
+
+		// result.BaseResponse.ErrorMessage = "album exists"
 	} else {
+		///add
 		albumHelper.CreateAlbum(*a)
 		result.BaseResponse.Result = true
 	}
