@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"./controller"
 	"./framework"
+	"./helper"
 )
 
 func main() {
@@ -22,5 +24,7 @@ func main() {
 	})
 	port := ":" + strconv.Itoa(conf.Port)
 	fmt.Println("listen at " + port)
-	http.ListenAndServe(port, nil)
+	go helper.PictureProcess()
+	time.Sleep(time.Second * 10)
+	// http.ListenAndServe(port, nil)
 }
