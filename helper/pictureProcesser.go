@@ -5,13 +5,26 @@ import (
 	"time"
 )
 
-var message = make(chan string)
-
 func PictureProcess() {
-	fmt.Println("in PictureProcess")
-	fmt.Println("<-0")
-	message <- "hello1"
-	fmt.Println("<-1")
-	time.Sleep(time.Second * 2)
-	fmt.Println(<-message)
+	go Out()
+}
+
+func Out() {
+	var message = make(chan int)
+
+	go func() {
+		for {
+			select {
+			case message <- 21:
+				fmt.Println("write")
+			case s := <-message:
+				fmt.Println(s)
+
+			default:
+				time.Sleep(time.Second * 2)
+				fmt.Println("default")
+			}
+		}
+	}()
+	message <- 21
 }
