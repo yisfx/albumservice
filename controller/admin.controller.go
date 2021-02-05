@@ -75,3 +75,19 @@ func (controller *AlbumManage) GetAlbumPicList(resp http.ResponseWriter, request
 	b, _ := json.Marshal(result)
 	resp.Write(b)
 }
+
+func (controller *AlbumManage) BuildAlbumImage(resp http.ResponseWriter, request *http.Request) {
+	r := &requestModel.GetAlbumPicListRequest{}
+	json.Unmarshal(helper.ReadBody(request.Body), r)
+	albumHelper := helper.NewAlbumHelper()
+	result := new(responseModel.BaseResponse)
+	if !albumHelper.ExistsAlbum(r.AlbumName, controller.SysConf.AlbumPath) {
+		helper.In(r.AlbumName)
+		result.Result = true
+	} else {
+		result.Result = false
+		result.ErrorMessage = "hasn't this Album"
+	}
+	b, _ := json.Marshal(result)
+	resp.Write(b)
+}
