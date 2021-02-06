@@ -23,10 +23,15 @@ func Out() {
 	for {
 		select {
 		case s := <-message:
-			fmt.Println(s)
+			go buildAlbum(s)
 		default:
 			time.Sleep(time.Second * 20)
 			fmt.Println("default")
 		}
 	}
+}
+
+func buildAlbum(album string) {
+	albumHelper = NewAlbumHelper()
+	albumHelper.
 }
