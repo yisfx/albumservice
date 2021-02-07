@@ -3,11 +3,22 @@ package helper
 import (
 	"fmt"
 	"time"
+
+	"../framework"
+	model "../model"
 )
+
+type PictureProcesser struct {
+	sysConf model.SysConf
+}
 
 var message = make(chan string)
 
-func In(album string) {
+func (this *PictureProcesser) init() {
+	this.sysConf = framework.ReadSysConf()
+}
+
+func (this *PictureProcesser) In(album string) {
 
 	message <- album
 	// time.Sleep(time.Second * 7)
@@ -32,6 +43,6 @@ func Out() {
 }
 
 func buildAlbum(album string) {
-	albumHelper = NewAlbumHelper()
-	albumHelper.
+	albumHelper := NewAlbumHelper()
+	albumHelper.GetAlbum(album)
 }
