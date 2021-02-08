@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"./albumtool"
 	"./controller"
 	"./framework"
-	"./helper"
 )
 
 func main() {
@@ -24,6 +24,6 @@ func main() {
 	})
 	port := ":" + strconv.Itoa(conf.Port)
 	fmt.Println("listen at " + port)
-	go helper.Out()
+	go albumtool.Out()
 	http.ListenAndServe(port, nil)
 }

@@ -1,10 +1,8 @@
-package helper
+package albumtool
 
 import (
-	"fmt"
 	"time"
 
-	"../framework"
 	model "../model"
 )
 
@@ -14,11 +12,7 @@ type PictureProcesser struct {
 
 var message = make(chan string)
 
-func (this *PictureProcesser) init() {
-	this.sysConf = framework.ReadSysConf()
-}
-
-func (this *PictureProcesser) In(album string) {
+func In(album string) {
 
 	message <- album
 	// time.Sleep(time.Second * 7)
@@ -36,13 +30,12 @@ func Out() {
 		case s := <-message:
 			go buildAlbum(s)
 		default:
-			time.Sleep(time.Second * 20)
-			fmt.Println("default")
+			time.Sleep(time.Second * 2)
 		}
 	}
 }
 
-func buildAlbum(album string) {
+func buildAlbum(albumPath string) {
 	albumHelper := NewAlbumHelper()
-	albumHelper.GetAlbum(album)
+	albumHelper.GetAlbum(albumPath)
 }

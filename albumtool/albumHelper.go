@@ -1,10 +1,11 @@
-package helper
+package albumtool
 
 import (
 	"encoding/json"
 	"path"
 	"strings"
 
+	"../framework"
 	"../model"
 )
 
@@ -14,7 +15,7 @@ type AlbumHelper struct {
 }
 
 func (this *AlbumHelper) BuildAlbumList(dirPath string) []model.Album {
-	pathList := GetFloderListFromPath(dirPath)
+	pathList := framework.GetFloderListFromPath(dirPath)
 	albumList := []model.Album{}
 	if pathList == nil {
 		return albumList
@@ -22,7 +23,7 @@ func (this *AlbumHelper) BuildAlbumList(dirPath string) []model.Album {
 	for _, album := range pathList {
 		albumConfPath := path.Join(dirPath, album, AMBUM_JSON)
 		albumConf := &model.Album{}
-		confStr := GetFileContentByName(path.Join(albumConfPath))
+		confStr := framework.GetFileContentByName(path.Join(albumConfPath))
 		json.Unmarshal([]byte(confStr), albumConf)
 		if albumConf != nil {
 			albumConf.Path = path.Join(dirPath, album)
@@ -36,7 +37,7 @@ func (this *AlbumHelper) BuildAlbumList(dirPath string) []model.Album {
 func (this *AlbumHelper) GetAlbum(dirPath string) model.Album {
 	albumConfPath := path.Join(dirPath, AMBUM_JSON)
 	albumConf := &model.Album{}
-	confStr := GetFileContentByName(path.Join(albumConfPath))
+	confStr := framework.GetFileContentByName(path.Join(albumConfPath))
 	json.Unmarshal([]byte(confStr), albumConf)
 	if albumConf != nil {
 		albumConf.Path = dirPath
@@ -50,14 +51,14 @@ func getPicName(picName string) string {
 }
 
 func BuildPicForAlbum(album model.Album) []model.Picture {
-	fileList := GetFileListByPath(album.Path)
+	fileList := framework.GetFileListByPath(album.Path)
 	picList := []model.Picture{}
 	if fileList == nil {
 		return picList
 	}
 	p := make(map[string]int)
 	for _, pic := range fileList {
-		if IsPic(pic) {
+		if framework.IsPic(pic) {
 			name := getPicName(pic)
 			if _, ok := p[name]; !ok {
 				p[name] = 1
@@ -90,14 +91,14 @@ func (this *AlbumHelper) ExistsAlbum(albumName string, path string) bool {
 
 func (this *AlbumHelper) CreateAlbum(album model.Album) {
 	///create folder
-	CreateFolder(album.Path)
+	framework.CreateFolder(album.Path)
 	///write AMBUM_JSON
 	content, _ := json.Marshal(album)
-	WriteFile(string(content), path.Join(album.Path, AMBUM_JSON))
+	framework.WriteFile(string(content), path.Join(album.Path, AMBUM_JSON))
 }
 func (this *AlbumHelper) EditAlbum(album model.Album) {
 	content, _ := json.Marshal(album)
-	WriteFile(string(content), path.Join(album.Path, AMBUM_JSON))
+	framework.WriteFile(string(content), path.Join(album.Path, AMBUM_JSON))
 }
 
 func NewAlbumHelper() *AlbumHelper {

@@ -3,7 +3,6 @@ package framework
 import (
 	"encoding/json"
 
-	"../helper"
 	"../model"
 )
 
@@ -11,7 +10,7 @@ import (
 // 读取sysConfig
 func ReadSysConf() *model.SysConf {
 	conf := &model.SysConf{}
-	f := helper.GetFileContentByName("./conf/sys.conf.json")
+	f := GetFileContentByName("./conf/sys.conf.json")
 	json.Unmarshal([]byte(f), conf)
 	return conf
 }

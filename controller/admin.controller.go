@@ -6,7 +6,8 @@ import (
 	"net/http"
 	"path"
 
-	"../helper"
+	"../albumtool"
+	"../framework"
 	"../model"
 	requestModel "../model/request"
 	responseModel "../model/response"
@@ -23,7 +24,7 @@ func NewAlbumManageController(SysConf model.SysConf) *AlbumManage {
 }
 
 func (controller *AlbumManage) GeAlbumList(res http.ResponseWriter, request *http.Request) {
-	albumHelper := helper.AlbumHelper{}
+	albumHelper := albumtool.AlbumHelper{}
 	albumList := albumHelper.BuildAlbumList(controller.SysConf.AlbumPath)
 	result := new(responseModel.AlbumListResponse)
 	result.BaseResponse.Result = true
@@ -39,8 +40,8 @@ func (controller *AlbumManage) GeAlbumList(res http.ResponseWriter, request *htt
 func (controller *AlbumManage) AddAlbum(resp http.ResponseWriter, request *http.Request) {
 
 	a := &model.Album{}
-	json.Unmarshal(helper.ReadBody(request.Body), a)
-	albumHelper := helper.NewAlbumHelper()
+	json.Unmarshal(framework.ReadBody(request.Body), a)
+	albumHelper := albumtool.NewAlbumHelper()
 	result := new(responseModel.AddAlbumResponse)
 	a.Path = path.Join(controller.SysConf.AlbumPath, a.Name)
 	if albumHelper.ExistsAlbum(a.Name, controller.SysConf.AlbumPath) {
@@ -61,8 +62,8 @@ func (controller *AlbumManage) AddAlbum(resp http.ResponseWriter, request *http.
 
 func (controller *AlbumManage) GetAlbumPicList(resp http.ResponseWriter, request *http.Request) {
 	r := &requestModel.GetAlbumPicListRequest{}
-	json.Unmarshal(helper.ReadBody(request.Body), r)
-	albumHelper := helper.NewAlbumHelper()
+	json.Unmarshal(framework.ReadBody(request.Body), r)
+	albumHelper := albumtool.NewAlbumHelper()
 	result := new(responseModel.GetAlbumPicListResponse)
 	if !albumHelper.ExistsAlbum(r.AlbumName, controller.SysConf.AlbumPath) {
 		result.BaseResponse.Result = false
@@ -78,11 +79,11 @@ func (controller *AlbumManage) GetAlbumPicList(resp http.ResponseWriter, request
 
 func (controller *AlbumManage) BuildAlbumImage(resp http.ResponseWriter, request *http.Request) {
 	r := &requestModel.GetAlbumPicListRequest{}
-	json.Unmarshal(helper.ReadBody(request.Body), r)
-	albumHelper := helper.NewAlbumHelper()
+	json.Unmarshal(framework.ReadBody(request.Body), r)
+	albumHelper := albumtool.NewAlbumHelper()
 	result := new(responseModel.BaseResponse)
-	if !albumHelper.ExistsAlbum(r.AlbumName, controller.SysConf.AlbumPath) {
-		helper.In(r.AlbumName)
+	if albumHelper.ExistsAlbum(r.AlbumName, controller.SysConf.AlbumPath) {
+		go albumtool.In(path.Join(controller.SysConf.AlbumPath, r.AlbumName))
 		result.Result = true
 	} else {
 		result.Result = false
