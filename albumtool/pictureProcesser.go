@@ -3,6 +3,7 @@ package albumtool
 import (
 	"time"
 
+	"../framework"
 	model "../model"
 )
 
@@ -13,15 +14,7 @@ type PictureProcesser struct {
 var message = make(chan string)
 
 func In(album string) {
-
 	message <- album
-	// time.Sleep(time.Second * 7)
-	// for {
-	// 	if time.Now().Second()%3 == 0 {
-	// 		message <- "ininin"
-	// 	}
-	// 	time.Sleep(time.Second * 7)
-	// }
 }
 
 func Out() {
@@ -37,5 +30,20 @@ func Out() {
 
 func buildAlbum(albumPath string) {
 	albumHelper := NewAlbumHelper()
-	albumHelper.GetAlbum(albumPath)
+	album := albumHelper.GetAlbum(albumPath)
+	for _, pic := range album.PicList {
+		if !framework.FileExists(pic.MaxPath) {
+			buildMaxPic(pic.OrgPath, pic.MaxPath)
+		}
+		if !framework.FileExists(pic.MiniPath) {
+			buildMiniPic(pic.MaxPath, pic.MiniPath)
+		}
+	}
+}
+
+func buildMaxPic(org string, max string) {
+
+}
+func buildMiniPic(max string, mini string) {
+
 }

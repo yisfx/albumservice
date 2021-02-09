@@ -64,3 +64,8 @@ func WriteFile(content string, fileName string) {
 	}
 	f.WriteString(content)
 }
+
+func FileExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
