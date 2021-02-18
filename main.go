@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"./albumtool"
-	"./controller"
-	"./framework"
+	"albumservice/albumtool"
+	"albumservice/controller"
+	"albumservice/framework"
 )
 
 func main() {

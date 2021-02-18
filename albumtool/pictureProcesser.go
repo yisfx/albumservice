@@ -3,8 +3,8 @@ package albumtool
 import (
 	"time"
 
-	"../framework"
-	model "../model"
+	"albumservice/framework"
+	model "albumservice/model"
 )
 
 type PictureProcesser struct {

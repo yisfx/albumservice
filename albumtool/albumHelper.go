@@ -5,8 +5,8 @@ import (
 	"path"
 	"strings"
 
-	"../framework"
-	"../model"
+	framework "albumservice/framework"
+	model "albumservice/model"
 )
 
 const AMBUM_JSON = "album.json"

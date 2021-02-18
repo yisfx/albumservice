@@ -1,4 +1,4 @@
-package model
+package modal
 
 type SysConf struct {
 	Port      int    `json"port"`

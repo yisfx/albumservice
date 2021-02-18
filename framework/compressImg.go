@@ -11,7 +11,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/nfnt/resize"
+	resize "github.com/nfnt/resize"
 )
 
 func CompressImg(source string, hight uint) error {
@@ -52,7 +52,7 @@ func CompressImg(source string, hight uint) error {
 			return err
 		}
 	}
-	abspath, _ := filepath.Abs(newName)
+	filepath.Abs(newName)
 	return nil
 }
 

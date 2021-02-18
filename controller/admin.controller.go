@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"path"
 
-	"../albumtool"
-	"../framework"
-	"../model"
-	requestModel "../model/request"
-	responseModel "../model/response"
+	"albumservice/albumtool"
+	"albumservice/framework"
+	model "albumservice/model"
+	requestModel "albumservice/model/request"
+	responseModel "albumservice/model/response"
 )
 
 type AlbumManage struct {

@@ -3,7 +3,7 @@ package framework
 import (
 	"encoding/json"
 
-	"../model"
+	model "albumservice/model"
 )
 
 // ReadSysConf

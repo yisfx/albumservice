@@ -1,4 +1,4 @@
-package model
+package modal
 
 ///相册
 type Album struct {
