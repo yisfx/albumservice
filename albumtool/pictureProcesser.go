@@ -1,6 +1,9 @@
 package albumtool
 
 import (
+	"fmt"
+	"image"
+	"os"
 	"time"
 
 	"albumservice/framework"
@@ -32,6 +35,12 @@ func buildAlbum(albumPath string) {
 	albumHelper := NewAlbumHelper()
 	album := albumHelper.GetAlbum(albumPath)
 	for _, pic := range album.PicList {
+
+		file, _ := os.Open(pic.OrgPath)
+		c, _, _ := image.DecodeConfig(file)
+		file.Close()
+		fmt.Println("width = ", c.Width, c.Height)
+
 		if !framework.FileExists(pic.MaxPath) {
 			buildMaxPic(pic.OrgPath, pic.MaxPath)
 		}
@@ -42,8 +51,10 @@ func buildAlbum(albumPath string) {
 }
 
 func buildMaxPic(org string, max string) {
-
+	// fmt.Println(org, max)
+	// framework.CompressImg(org, 2560, max)
 }
 func buildMiniPic(max string, mini string) {
-
+	// fmt.Println(max, mini)
+	// framework.CompressImg(max, 500, mini)
 }

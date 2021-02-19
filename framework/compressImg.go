@@ -14,7 +14,7 @@ import (
 	resize "github.com/nfnt/resize"
 )
 
-func CompressImg(source string, hight uint) error {
+func CompressImg(source string, wide uint, newName string) error {
 	var err error
 	var file *os.File
 	reg, _ := regexp.Compile(`^.*\.((png)|(jpg))$`)
@@ -41,8 +41,7 @@ func CompressImg(source string, hight uint) error {
 		err = fmt.Errorf("Images %s name not right!", name)
 		return err
 	}
-	resizeImg := resize.Resize(hight, 0, img, resize.Lanczos3)
-	newName := newName(source, int(hight))
+	resizeImg := resize.Resize(wide, 0, img, resize.Lanczos3)
 	if outFile, err := os.Create(newName); err != nil {
 		return err
 	} else {
@@ -54,10 +53,4 @@ func CompressImg(source string, hight uint) error {
 	}
 	filepath.Abs(newName)
 	return nil
-}
-
-//create a file name for the iamges that after resize
-func newName(name string, size int) string {
-	dir, file := filepath.Split(name)
-	return fmt.Sprintf("%s_%d%s", dir, size, file)
 }
