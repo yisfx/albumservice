@@ -47,7 +47,12 @@ func (this *AlbumHelper) GetAlbum(dirPath string) model.Album {
 }
 
 func getPicName(picName string) string {
-	return strings.Split(picName, "-")[0]
+
+	names := strings.Split(picName, "-")
+	if len(names) == 3 {
+		return names[0] + "-" + names[1]
+	}
+	return names[0]
 }
 
 func BuildPicForAlbum(album model.Album) []model.Picture {
