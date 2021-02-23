@@ -18,3 +18,8 @@ type Picture struct {
 	OrgPath  string
 	Album    string
 }
+
+const (
+	DeleteImage        = "Image"
+	DeleteAbbreviation = "Abbreviation"
+)

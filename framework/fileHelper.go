@@ -69,3 +69,10 @@ func FileExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
 }
+
+func DeleteFile(path string) bool {
+	if FileExists(path) {
+		os.Remove(path)
+	}
+	return true
+}

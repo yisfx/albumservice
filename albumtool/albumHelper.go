@@ -106,6 +106,21 @@ func (this *AlbumHelper) EditAlbum(album model.Album) {
 	framework.WriteFile(string(content), path.Join(album.Path, AMBUM_JSON))
 }
 
+func (this *AlbumHelper) DeleteAlbumPic(albumPath string, picName string, deleteType string) {
+	///org
+	if deleteType == model.DeleteImage {
+		framework.DeleteFile(albumPath + "/" + picName + "-org.jpg")
+	}
+	///max
+	if deleteType == model.DeleteAbbreviation {
+		framework.DeleteFile(albumPath + "/" + picName + "-max.jpg")
+	}
+	///mini
+	if deleteType == model.DeleteAbbreviation {
+		framework.DeleteFile(albumPath + "/" + picName + "-mini.jpg")
+	}
+}
+
 func NewAlbumHelper() *AlbumHelper {
 	return &AlbumHelper{}
 }

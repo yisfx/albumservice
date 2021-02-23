@@ -92,3 +92,14 @@ func (controller *AlbumManage) BuildAlbumImage(resp http.ResponseWriter, request
 	b, _ := json.Marshal(result)
 	resp.Write(b)
 }
+
+func (controller *AlbumManage) DeleteAlbumPic(resp http.ResponseWriter, request *http.Request) {
+	r := &requestModel.DeleteAlbumPicRequest{}
+	json.Unmarshal(framework.ReadBody(request.Body), r)
+	albumHelper := albumtool.NewAlbumHelper()
+	result := new(responseModel.BaseResponse)
+	albumHelper.DeleteAlbumPic(path.Join(controller.SysConf.AlbumPath, r.AlbumName), r.PicName, r.DeleteType)
+	result.Result = true
+	b, _ := json.Marshal(result)
+	resp.Write(b)
+}
