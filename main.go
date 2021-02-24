@@ -15,7 +15,7 @@ func main() {
 	fmt.Println(conf)
 	manageController := controller.NewAlbumManageController(conf)
 
-	http.HandleFunc("/Manage/AlbumList", manageController.GeAlbumList)
+	http.HandleFunc("/Manage/AlbumList", manageController.GetAlbumList)
 	http.HandleFunc("/Manage/AddAlbum", manageController.AddAlbum)
 	http.HandleFunc("/Manage/GetAlbum", manageController.GetAlbumPicList)
 	http.HandleFunc("/Manage/BuildAlbumImage", manageController.BuildAlbumImage)

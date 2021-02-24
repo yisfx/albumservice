@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"path"
+	"reflect"
 
 	"albumservice/albumtool"
 	"albumservice/framework"
@@ -14,16 +15,27 @@ import (
 )
 
 type AlbumManage struct {
-	SysConf model.SysConf
+	SysConf   model.SysConf
+	RouterMap map[string]reflect.Type
 }
 
 func NewAlbumManageController(SysConf model.SysConf) *AlbumManage {
 	o := &AlbumManage{}
 	o.SysConf = SysConf
+	o.RouterMap = make(map[string]reflect.Type)
+	controller := reflect.TypeOf(o)
+	for i := 0; i < controller.NumMethod(); i++ {
+		m := controller.Method(i)
+		if m.Type.NumIn() > 0 {
+			o.RouterMap[m.Name] = m.Type.In(1)
+		} else {
+			o.RouterMap[m.Name] = reflect.TypeOf(nil)
+		}
+	}
 	return o
 }
 
-func (controller *AlbumManage) GeAlbumList(res http.ResponseWriter, request *http.Request) {
+func (controller *AlbumManage) GetAlbumList(res http.ResponseWriter, request *http.Request) {
 	albumHelper := albumtool.AlbumHelper{}
 	albumList := albumHelper.BuildAlbumList(controller.SysConf.AlbumPath)
 	result := new(responseModel.AlbumListResponse)
