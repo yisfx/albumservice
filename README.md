@@ -6,13 +6,13 @@
      - pic1-mini.jpg
      - pic1-max.jpg
      - pic1-org.jpg
-     - album.json
+     - > album.json
 		```json
-			{
-				Name  :string=album1
-				Cover :string=pic1
-				Date  :string='2020-01-01'
-			}
+	>		{
+	>			Name  :string=album1
+	>			Cover :string=pic1
+	>			Date  :string='2020-01-01'
+	>		}
 		```
 + album2
 
