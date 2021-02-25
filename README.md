@@ -11,6 +11,7 @@
 > > > > - Name  :string=album1
 > > > > - Cover :string=pic1
 > > > > - Date  :string='2020-01-01'
+> > >
 > > > }
 
 > album2
