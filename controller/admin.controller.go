@@ -26,7 +26,7 @@ func NewAlbumManageController(SysConf model.SysConf) *AlbumManage {
 	controller := reflect.TypeOf(o)
 	for i := 0; i < controller.NumMethod(); i++ {
 		m := controller.Method(i)
-		if m.Type.NumIn() > 0 {
+		if m.Type.NumIn() > 1 {
 			o.RouterMap[m.Name] = m.Type.In(1)
 		} else {
 			o.RouterMap[m.Name] = reflect.TypeOf(nil)
