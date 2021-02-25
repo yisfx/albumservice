@@ -16,6 +16,6 @@
 		```
 + album2
 
-shenmedoubuyaoshuo [a]。
+shenmedoubuyaoshuo [^a]。
 
 [^a]: 什么也不要说,转身直接离开,否则她会像对待一件行李一样对待你
