@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path"
 	"reflect"
+	"strings"
 
 	"albumservice/albumtool"
 	"albumservice/framework"
@@ -16,37 +17,50 @@ import (
 
 type AlbumManage struct {
 	SysConf   model.SysConf
-	RouterMap map[string]reflect.Type
+	RouterMap map[string]model.RouterMap
 }
 
 func NewAlbumManageController(SysConf model.SysConf) *AlbumManage {
 	o := &AlbumManage{}
 	o.SysConf = SysConf
-	o.RouterMap = make(map[string]reflect.Type)
+	o.RouterMap = make(map[string]model.RouterMap)
 	controller := reflect.TypeOf(o)
 	for i := 0; i < controller.NumMethod(); i++ {
+
 		m := controller.Method(i)
-		if m.Type.NumIn() > 1 {
-			o.RouterMap[m.Name] = m.Type.In(1)
-		} else {
-			o.RouterMap[m.Name] = reflect.TypeOf(nil)
+		if strings.EqualFold(m.Name, "process") {
+			continue
 		}
+		route := model.RouterMap{}
+		route.Controller = reflect.ValueOf(m)
+		if m.Type.NumIn() > 1 {
+			route.ArgType = m.Type.In(1)
+		} else {
+			route.ArgType = nil
+		}
+		o.RouterMap[m.Name] = route
+
 	}
 	return o
 }
 
-func (controller *AlbumManage) GetAlbumList(res http.ResponseWriter, request *http.Request) {
+func (controller *AlbumManage) Process(res http.ResponseWriter, request *http.Request) {
+	urls := strings.Split(request.URL.Path, "/")
+
+	route := controller.RouterMap[urls[2]]
+	if route.ArgType == nil {
+		fmt.Println(route.Controller.Call(nil))
+	}
+	res.Write([]byte("123123"))
+}
+
+func (controller *AlbumManage) GetAlbumList() responseModel.AlbumListResponse {
 	albumHelper := albumtool.AlbumHelper{}
 	albumList := albumHelper.BuildAlbumList(controller.SysConf.AlbumPath)
-	result := new(responseModel.AlbumListResponse)
+	result := responseModel.AlbumListResponse{}
 	result.BaseResponse.Result = true
 	result.AlbumList = albumList
-	resp, err := json.Marshal(result)
-	if err == nil {
-		res.Write(resp)
-	} else {
-		res.Write([]byte("500"))
-	}
+	return result
 }
 
 func (controller *AlbumManage) AddAlbum(resp http.ResponseWriter, request *http.Request) {
