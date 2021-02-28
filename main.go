@@ -14,10 +14,10 @@ func main() {
 	conf := *framework.ReadSysConf()
 	fmt.Println(conf)
 	manageController := controller.NewAlbumManageController(conf)
+	fmt.Println(manageController)
+	framework.Bootstrap(&manageController,"/Manage/",manageController.Process)
 
-	// framework.Bootstrap(controller.NewAlbumManageController(conf))
-
-	http.HandleFunc("/Manage/", manageController.Process)
+	// http.HandleFunc("/Manage/", manageController.Process)
 	// http.HandleFunc("/Manage/AlbumList", manageController.GetAlbumList)
 	// http.HandleFunc("/Manage/AddAlbum", manageController.AddAlbum)
 	// http.HandleFunc("/Manage/GetAlbum", manageController.GetAlbumPicList)
