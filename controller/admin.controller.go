@@ -67,8 +67,6 @@ func (controller *AlbumManage) Post_AddAlbum(r *requestModel.AddAlbumRequest) *r
 		///edit
 		albumHelper.EditAlbum(a)
 		result.BaseResponse.Result = true
-
-		// result.BaseResponse.ErrorMessage = "album exists"
 	} else {
 		///add
 		albumHelper.CreateAlbum(a)
