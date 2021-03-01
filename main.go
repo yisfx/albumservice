@@ -14,15 +14,8 @@ func main() {
 	conf := *framework.ReadSysConf()
 	fmt.Println(conf)
 	manageController := controller.NewAlbumManageController(conf)
-	fmt.Println(manageController)
-	framework.Bootstrap(&manageController,"/Manage/",manageController.Process)
+	framework.Bootstrap(&manageController, "/Manage/", manageController.Process)
 
-	// http.HandleFunc("/Manage/", manageController.Process)
-	// http.HandleFunc("/Manage/AlbumList", manageController.GetAlbumList)
-	// http.HandleFunc("/Manage/AddAlbum", manageController.AddAlbum)
-	// http.HandleFunc("/Manage/GetAlbum", manageController.GetAlbumPicList)
-	// http.HandleFunc("/Manage/BuildAlbumImage", manageController.BuildAlbumImage)
-	// http.HandleFunc("/Manage/DeleteAlbumPic", manageController.DeleteAlbumPic)
 	http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
 		response.Write([]byte("hello world"))
 	})
