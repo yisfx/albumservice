@@ -3,6 +3,7 @@ package modal
 ///相册
 type Album struct {
 	Name        string
+	CNName		string
 	Cover       string
 	Date        string
 	Path        string
