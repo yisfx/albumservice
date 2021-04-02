@@ -1,6 +1,6 @@
 package modal
 
 type SysConf struct {
-	Port      int    `json"port"`
-	AlbumPath string `json"AlbumPath"`
+	Port         int    `json:"port"`
+	GlobalConfig string `json:"GlobalConfig"`
 }
