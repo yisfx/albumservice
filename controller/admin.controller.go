@@ -18,12 +18,14 @@ import (
 type AlbumManage struct {
 	SysConfig  model.SysConf
 	RouterList map[string]model.RouterMap
+	GlobalConf model.GlobalConf
 	model.BaseController
 }
 
-func NewAlbumManageController(SysConf model.SysConf) model.BaseController {
+func NewAlbumManageController(SysConf model.SysConf, GlobalConf model.GlobalConf) model.BaseController {
 	o := &AlbumManage{}
 	o.SysConfig = SysConf
+	o.GlobalConf = GlobalConf
 	return o
 }
 
