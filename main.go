@@ -12,8 +12,9 @@ import (
 
 func main() {
 	conf := *framework.ReadSysConf()
-	fmt.Println(conf)
-	manageController := controller.NewAlbumManageController(conf)
+	globalConf := *framework.ReadGlobalConf((conf.GlobalConfig))
+	fmt.Println(conf, globalConf)
+	manageController := controller.NewAlbumManageController(conf, globalConf)
 	framework.Bootstrap(&manageController, "/Manage/", manageController.Process)
 
 	http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
