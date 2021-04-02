@@ -1,4 +1,4 @@
 {
     "port": 9001,
-    "AlbumPath": "C://Users//wangs//Desktop//album"
+    "GlobalConfig": "E://goworkspace//src//albumservice//conf//global.config.json"
 }
