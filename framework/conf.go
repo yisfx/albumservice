@@ -14,3 +14,10 @@ func ReadSysConf() *model.SysConf {
 	json.Unmarshal([]byte(f), conf)
 	return conf
 }
+
+func ReadGlobalConf(path string) *model.GlobalConf {
+	conf := &model.GlobalConf{}
+	f := GetFileContentByName(path)
+	json.Unmarshal([]byte(f), conf)
+	return conf
+}
