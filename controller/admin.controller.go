@@ -53,7 +53,7 @@ func (controller *AlbumManage) Process(resp http.ResponseWriter, request *http.R
 
 func (controller *AlbumManage) Post_GetAlbumList() responseModel.AlbumListResponse {
 	albumHelper := albumtool.AlbumHelper{}
-	albumList := albumHelper.BuildAlbumList(controller.SysConfig.AlbumPath)
+	albumList := albumHelper.BuildAlbumList(controller.GlobalConf.AlbumPath)
 	result := responseModel.AlbumListResponse{}
 	result.BaseResponse.Result = true
 	result.AlbumList = albumList
@@ -64,8 +64,8 @@ func (controller *AlbumManage) Post_AddAlbum(r *requestModel.AddAlbumRequest) *r
 	a := r.Album
 	albumHelper := albumtool.NewAlbumHelper()
 	result := new(responseModel.AddAlbumResponse)
-	a.Path = path.Join(controller.SysConfig.AlbumPath, a.Name)
-	if albumHelper.ExistsAlbum(a.Name, controller.SysConfig.AlbumPath) {
+	a.Path = path.Join(controller.GlobalConf.AlbumPath, a.Name)
+	if albumHelper.ExistsAlbum(a.Name, controller.GlobalConf.AlbumPath) {
 		///edit
 		albumHelper.EditAlbum(a)
 		result.BaseResponse.Result = true
@@ -80,12 +80,12 @@ func (controller *AlbumManage) Post_AddAlbum(r *requestModel.AddAlbumRequest) *r
 func (controller *AlbumManage) Post_GetAlbumPicList(r *requestModel.GetAlbumPicListRequest) *responseModel.GetAlbumPicListResponse {
 	albumHelper := albumtool.NewAlbumHelper()
 	result := new(responseModel.GetAlbumPicListResponse)
-	if !albumHelper.ExistsAlbum(r.AlbumName, controller.SysConfig.AlbumPath) {
+	if !albumHelper.ExistsAlbum(r.AlbumName, controller.GlobalConf.AlbumPath) {
 		result.BaseResponse.Result = false
 		result.BaseResponse.ErrorMessage = "hasn't this Album"
 	} else {
 		result.BaseResponse.Result = true
-		result.Album = albumHelper.GetAlbum(path.Join(controller.SysConfig.AlbumPath, r.AlbumName))
+		result.Album = albumHelper.GetAlbum(path.Join(controller.GlobalConf.AlbumPath, r.AlbumName))
 	}
 
 	return result
@@ -94,8 +94,8 @@ func (controller *AlbumManage) Post_GetAlbumPicList(r *requestModel.GetAlbumPicL
 func (controller *AlbumManage) Post_BuildAlbumImage(r *requestModel.GetAlbumPicListRequest) *responseModel.BaseResponse {
 	albumHelper := albumtool.NewAlbumHelper()
 	result := new(responseModel.BaseResponse)
-	if albumHelper.ExistsAlbum(r.AlbumName, controller.SysConfig.AlbumPath) {
-		go albumtool.In(path.Join(controller.SysConfig.AlbumPath, r.AlbumName))
+	if albumHelper.ExistsAlbum(r.AlbumName, controller.GlobalConf.AlbumPath) {
+		go albumtool.In(path.Join(controller.GlobalConf.AlbumPath, r.AlbumName))
 		result.Result = true
 	} else {
 		result.Result = false
@@ -107,7 +107,7 @@ func (controller *AlbumManage) Post_BuildAlbumImage(r *requestModel.GetAlbumPicL
 func (controller *AlbumManage) Post_DeleteAlbumPic(r *requestModel.DeleteAlbumPicRequest) *responseModel.BaseResponse {
 	albumHelper := albumtool.NewAlbumHelper()
 	result := new(responseModel.BaseResponse)
-	albumHelper.DeleteAlbumPic(path.Join(controller.SysConfig.AlbumPath, r.AlbumName), r.PicName, r.DeleteType)
+	albumHelper.DeleteAlbumPic(path.Join(controller.GlobalConf.AlbumPath, r.AlbumName), r.PicName, r.DeleteType)
 	result.Result = true
 	return result
 }
