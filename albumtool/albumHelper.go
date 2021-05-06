@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"path"
 	"strings"
-
+	"fmt"
 	framework "albumservice/framework"
 	model "albumservice/model"
 )
@@ -110,6 +110,8 @@ func (this *AlbumHelper) DeleteAlbumPic(albumPath string, picName string, delete
 	///org
 	if deleteType == model.DeleteImage {
 		framework.DeleteFile(albumPath + "/" + picName + "-org.jpg")
+		framework.DeleteFile(albumPath + "/" + picName + "-max.jpg")
+		framework.DeleteFile(albumPath + "/" + picName + "-mini.jpg")
 	}
 	///max
 	if deleteType == model.DeleteAbbreviation {
