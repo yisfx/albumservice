@@ -32,8 +32,12 @@ func NewAlbumManageController(SysConf model.SysConf, GlobalConf model.GlobalConf
 func (controller *AlbumManage) Process(resp http.ResponseWriter, request *http.Request) {
 	urls := strings.Split(request.URL.Path, "/")
 
-	route := controller.RouterList[urls[2]]
-
+	route, isok := controller.RouterList[urls[2]]
+	if !isok {
+		var result404, _ = json.Marshal(404)
+		resp.Write(result404)
+		return
+	}
 	var result []reflect.Value
 	if route.ArgType == nil {
 		result = route.Controller.Call(nil)

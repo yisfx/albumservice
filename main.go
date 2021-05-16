@@ -20,7 +20,7 @@ func main() {
 	http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
 		response.Write([]byte("hello world"))
 	})
-	port := ":" + strconv.Itoa(conf.Port)
+	port := "0.0.0.0:" + strconv.Itoa(conf.Port)
 	fmt.Println("listen at " + port)
 	go albumtool.Out()
 	http.ListenAndServe(port, nil)
