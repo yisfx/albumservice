@@ -1,4 +1,4 @@
 {
     "port": 9001,
-    "GlobalConfig": "C://Users//wangs//Desktop//site//github//album//src//conf//global.setting.json"
+    "GlobalConfig": "/app/album/global.setting.json"
 }
