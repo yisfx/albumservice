@@ -17,7 +17,7 @@ import (
 func CompressImg(source string, wide uint, newName string) error {
 	var err error
 	var file *os.File
-	reg, _ := regexp.Compile(`^.*\.((png)|(jpg))$`)
+	reg, _ := regexp.Compile(`^.*\.((png)|(jpg)|(JPG)|(PNG))$`)
 	if !reg.MatchString(source) {
 		err = errors.New("%s is not a .png or .jpg file")
 		return err
@@ -29,8 +29,16 @@ func CompressImg(source string, wide uint, newName string) error {
 	name := file.Name()
 	var img image.Image
 	switch {
+	case strings.HasSuffix(name, ".PNG"):
+		if img, err = png.Decode(file); err != nil {
+			return err
+		}
 	case strings.HasSuffix(name, ".png"):
 		if img, err = png.Decode(file); err != nil {
+			return err
+		}
+	case strings.HasSuffix(name, ".JPG"):
+		if img, err = jpeg.Decode(file); err != nil {
 			return err
 		}
 	case strings.HasSuffix(name, ".jpg"):
