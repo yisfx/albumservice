@@ -4,19 +4,20 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"time"
 	"strconv"
+	"time"
+
 	"github.com/go-redis/redis"
 )
 
 var redisdb *redis.Client
 
-func RedisConnect(prot int,password string) {
-	address:="127.0.0.1:" + strconv.Itoa(prot)
+func RedisConnect(prot int, password string) {
+	address := "127.0.0.1:" + strconv.Itoa(prot)
 	redisdb = redis.NewClient(&redis.Options{
-		Addr:     address, // use default Addr
-		Password: password,               // no password set
-		DB:       0,                // use default DB
+		Addr:     address,  // use default Addr
+		Password: password, // no password set
+		DB:       0,        // use default DB
 	})
 
 	//心跳
@@ -25,9 +26,6 @@ func RedisConnect(prot int,password string) {
 }
 
 func testRedisBase() {
-
-	ExampleClient_String()
-	ExampleClient_List()
 	ExampleClient_Hash()
 	ExampleClient_Set()
 	ExampleClient_SortSet()
@@ -39,61 +37,42 @@ func testRedisBase() {
 	ExampleClient_PubSub()
 }
 
-func ExampleClient_String() {
-	log.Println("ExampleClient_String")
-	defer log.Println("ExampleClient_String")
+const TTL = 356 * 24 * time.Hour
 
-	//kv读写
-	err := redisdb.Set("key", "value", 1*time.Second).Err()
-	log.Println(err)
-
-	//获取过期时间
-	tm, err := redisdb.TTL("key").Result()
-	log.Println(tm)
-
+func SetString(key string, value string) error {
+	return redisdb.Set(key, value, TTL).Err()
+}
+func GetString(key string) string {
 	val, err := redisdb.Get("key").Result()
-	log.Println(val, err)
-
-	val2, err := redisdb.Get("missing_key").Result()
-	if err == redis.Nil {
-		log.Println("missing_key does not exist")
-	} else if err != nil {
-		log.Println("missing_key", val2, err)
+	if err != nil {
+		return ""
 	}
-
-	//不存在才设置 过期时间 nx ex
-	value, err := redisdb.SetNX("counter", 0, 1*time.Second).Result()
-	log.Println("setnx", value, err)
-
-	//Incr
-	result, err := redisdb.Incr("counter").Result()
-	log.Println("Incr", result, err)
+	return val
+}
+func GetTTL(key string) time.Duration {
+	val, err := redisdb.TTL(key).Result()
+	if err != nil {
+		return time.Second
+	}
+	return val
 }
 
-func ExampleClient_List() {
-	log.Println("ExampleClient_List")
-	defer log.Println("ExampleClient_List")
-	//添加
-	log.Println(redisdb.RPush("list_test", "message1").Err())
-	log.Println(redisdb.RPush("list_test", "message2").Err())
-
-	//设置
-	log.Println(redisdb.LSet("list_test", 2, "message set").Err())
-
-	//remove
-	ret, err := redisdb.LRem("list_test", 3, "message1").Result()
-	log.Println(ret, err)
-
-	rLen, err := redisdb.LLen("list_test").Result()
-	log.Println(rLen, err)
-
-	//遍历
-	lists, err := redisdb.LRange("list_test", 0, rLen-1).Result()
-	log.Println("LRange", lists, err)
-
-	//pop没有时阻塞
-	result, err := redisdb.BLPop(1*time.Second, "list_test").Result()
-	log.Println("result:", result, err, len(result))
+func SetList(key string, value string) error {
+	return redisdb.RPush(key, value).Err()
+}
+func GetList(key string) []string {
+	rLen, err := redisdb.LLen(key).Result()
+	if err != nil {
+		return nil
+	}
+	lists, err := redisdb.LRange(key, 0, rLen-1).Result()
+	if err != nil {
+		return nil
+	}
+	return lists
+}
+func DeleteList(key string, item string) {
+	redisdb.LRem(key, 3, item).Result()
 }
 
 func ExampleClient_Hash() {
