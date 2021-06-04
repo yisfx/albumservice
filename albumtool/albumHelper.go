@@ -1,23 +1,76 @@
 package albumtool
 
 import (
+	framework "albumservice/framework"
+	model "albumservice/model"
 	"encoding/json"
 	"path"
 	"strings"
-	framework "albumservice/framework"
-	model "albumservice/model"
 )
 
 const AMBUM_JSON = "album.json"
+const (
+	Album_List_Key         = "album_list"          //list
+	Album_Name_Key         = "album_"              //string  album_aaa
+	Album_Picture_List_Key = "album_picture_list_" //list album_picture_list_aaa
+	//TODO:
+	Picture_Key = "picture_" //string picture_IMG_20210505_115601
+)
 
 type AlbumHelper struct {
 }
 
-func (this *AlbumHelper) BuildAlbumList(dirPath string) []model.Album {
-	pathList := framework.GetFloderListFromPath(dirPath)
+func (this *AlbumHelper) GetAlbumList() []model.Album {
+	var albumNameList []string
+	albumNameList = framework.GetList(Album_List_Key)
 	albumList := []model.Album{}
+	for _, albumName := range albumNameList {
+		confStr := framework.GetString(Album_Name_Key + albumName)
+		if confStr == "" {
+			return nil
+		}
+		albumConf := &model.Album{}
+		json.Unmarshal([]byte(confStr), albumConf)
+		if albumConf != nil {
+			albumList = append(albumList, *albumConf)
+		}
+	}
+	return albumList
+}
+
+func (this *AlbumHelper) GetAlbum(albumName string) *model.Album {
+	confStr := framework.GetString(Album_Name_Key + albumName)
+	if confStr == "" {
+		return nil
+	}
+	albumConf := &model.Album{}
+	json.Unmarshal([]byte(confStr), albumConf)
+	if albumConf != nil {
+
+		albumConf.PicList = this.GetPicForAlbum(albumName)
+	}
+	return albumConf
+}
+
+//TODO:
+func (this *AlbumHelper) GetPicForAlbum(albumName string) []model.Picture {
+	picList := []model.Picture{}
+	var dataList []string
+	dataList = framework.GetList(Album_Picture_List_Key + albumName)
+	for _, str := range dataList {
+		pic := &model.Picture{}
+		json.Unmarshal([]byte(str), pic)
+		if pic != nil {
+			picList = append(picList, *pic)
+		}
+	}
+	return picList
+}
+
+func (this *AlbumHelper) buildAlbumList(dirPath string) {
+	pathList := framework.GetFloderListFromPath(dirPath)
 	if pathList == nil {
-		return albumList
+		return
 	}
 	for _, album := range pathList {
 		albumConfPath := path.Join(dirPath, album, AMBUM_JSON)
@@ -26,23 +79,15 @@ func (this *AlbumHelper) BuildAlbumList(dirPath string) []model.Album {
 		json.Unmarshal([]byte(confStr), albumConf)
 		if albumConf != nil {
 			albumConf.Path = path.Join(dirPath, album)
-			///albumConf.PicList = BuildPicForAlbum(*albumConf)
-			albumList = append(albumList, *albumConf)
+			///save albumList
+			framework.SetList(Album_List_Key, albumConf.Name)
+			///save album conf
+			value, err := json.Marshal(albumConf)
+			if err == nil {
+				framework.SetString(Album_Name_Key+albumConf.Name, string(value))
+			}
 		}
 	}
-	return albumList
-}
-
-func (this *AlbumHelper) GetAlbum(dirPath string) model.Album {
-	albumConfPath := path.Join(dirPath, AMBUM_JSON)
-	albumConf := &model.Album{}
-	confStr := framework.GetFileContentByName(path.Join(albumConfPath))
-	json.Unmarshal([]byte(confStr), albumConf)
-	if albumConf != nil {
-		albumConf.Path = dirPath
-		albumConf.PicList = BuildPicForAlbum(*albumConf)
-	}
-	return *albumConf
 }
 
 func getPicName(picName string) string {
@@ -54,11 +99,10 @@ func getPicName(picName string) string {
 	return names[0]
 }
 
-func BuildPicForAlbum(album model.Album) []model.Picture {
+func buildPicForAlbum(album model.Album) {
 	fileList := framework.GetFileListByPath(album.Path)
-	picList := []model.Picture{}
 	if fileList == nil {
-		return picList
+		return
 	}
 	p := make(map[string]int)
 	for _, pic := range fileList {
@@ -70,19 +114,23 @@ func BuildPicForAlbum(album model.Album) []model.Picture {
 		}
 	}
 	for n := range p {
-		picList = append(picList, model.Picture{
+		pic := model.Picture{
 			Name:     n,
 			MiniPath: path.Join(album.Path, n+"-mini.jpg"),
 			MaxPath:  path.Join(album.Path, n+"-max.jpg"),
 			OrgPath:  path.Join(album.Path, n+"-org.jpg"),
 			Album:    album.Name,
-		})
+		}
+		picData, err := json.Marshal(pic)
+		if err != nil {
+			//TODO:
+			framework.SetList(Album_Picture_List_Key+n, string(picData))
+		}
 	}
-	return picList
 }
 
-func (this *AlbumHelper) ExistsAlbum(albumName string, path string) bool {
-	albumList := this.BuildAlbumList(path)
+func (this *AlbumHelper) ExistsAlbum(albumName string) bool {
+	albumList := this.GetAlbumList()
 	b := false
 	for _, a := range albumList {
 		if strings.EqualFold(a.Name, albumName) {
@@ -99,12 +147,20 @@ func (this *AlbumHelper) CreateAlbum(album model.Album) {
 	///write AMBUM_JSON
 	content, _ := json.Marshal(album)
 	framework.WriteFile(string(content), path.Join(album.Path, AMBUM_JSON))
+
+	framework.SetList(Album_List_Key, album.Name)
+	framework.SetString(Album_Name_Key, string(content))
 }
+
 func (this *AlbumHelper) EditAlbum(album model.Album) {
 	content, _ := json.Marshal(album)
 	framework.WriteFile(string(content), path.Join(album.Path, AMBUM_JSON))
+
+	framework.SetString(Album_Name_Key, string(content))
+
 }
 
+///TODO:
 func (this *AlbumHelper) DeleteAlbumPic(albumPath string, picName string, deleteType string) {
 	///org
 	if deleteType == model.DeleteImage {
@@ -114,10 +170,9 @@ func (this *AlbumHelper) DeleteAlbumPic(albumPath string, picName string, delete
 	}
 	///max
 	if deleteType == model.DeleteAbbreviation {
+		//max
 		framework.DeleteFile(albumPath + "/" + picName + "-max.jpg")
-	}
-	///mini
-	if deleteType == model.DeleteAbbreviation {
+		//mini
 		framework.DeleteFile(albumPath + "/" + picName + "-mini.jpg")
 	}
 }
