@@ -49,6 +49,11 @@ func GetString(key string) string {
 	}
 	return val
 }
+
+func DelKey(key string) {
+	redisdb.Del(key)
+}
+
 func GetTTL(key string) time.Duration {
 	val, err := redisdb.TTL(key).Result()
 	if err != nil {

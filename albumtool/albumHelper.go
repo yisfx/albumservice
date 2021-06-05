@@ -52,13 +52,13 @@ func (this *AlbumHelper) GetAlbum(albumName string) *model.Album {
 	return albumConf
 }
 
-//TODO:
 func (this *AlbumHelper) GetPicForAlbum(albumName string) []model.Picture {
 	picList := []model.Picture{}
-	var dataList []string
-	dataList = framework.GetList(Album_Picture_List_Key + albumName)
-	for _, str := range dataList {
+	var picNameList []string
+	picNameList = framework.GetList(Album_Picture_List_Key + albumName)
+	for _, picName := range picNameList {
 		pic := &model.Picture{}
+		str := framework.GetString(Picture_Key + picName)
 		json.Unmarshal([]byte(str), pic)
 		if pic != nil {
 			picList = append(picList, *pic)
@@ -123,8 +123,8 @@ func buildPicForAlbum(album model.Album) {
 		}
 		picData, err := json.Marshal(pic)
 		if err != nil {
-			//TODO:
-			framework.SetList(Album_Picture_List_Key+n, string(picData))
+			framework.SetList(Album_Picture_List_Key+album.Name, n)
+			framework.SetString(Picture_Key+n, string(picData))
 		}
 	}
 }
@@ -167,6 +167,8 @@ func (this *AlbumHelper) DeleteAlbumPic(albumPath string, picName string, delete
 		framework.DeleteFile(albumPath + "/" + picName + "-org.jpg")
 		framework.DeleteFile(albumPath + "/" + picName + "-max.jpg")
 		framework.DeleteFile(albumPath + "/" + picName + "-mini.jpg")
+		framework.DeleteList(Album_Picture_List_Key+picName, picName)
+		framework.DelKey(Picture_Key + picName)
 	}
 	///max
 	if deleteType == model.DeleteAbbreviation {
