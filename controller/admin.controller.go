@@ -95,6 +95,12 @@ func (controller *AlbumManage) Post_GetAlbumPicList(r *requestModel.GetAlbumPicL
 	return result
 }
 
+func (controller *AlbunManage) Post_UploadImage(r *requestModel.UploadPictureRequest) *responseModel.BaseResponse {
+	albumHelper := albumtool.NewAlbumHelper()
+	result := new(responseModel.BaseResponse)
+	albumHelper.GetAlbum(r.AlbumName)
+}
+
 func (controller *AlbumManage) Post_BuildAlbumImage(r *requestModel.GetAlbumPicListRequest) *responseModel.BaseResponse {
 	albumHelper := albumtool.NewAlbumHelper()
 	result := new(responseModel.BaseResponse)

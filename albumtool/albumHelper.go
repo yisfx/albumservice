@@ -149,18 +149,17 @@ func (this *AlbumHelper) CreateAlbum(album model.Album) {
 	framework.WriteFile(string(content), path.Join(album.Path, AMBUM_JSON))
 
 	framework.SetList(Album_List_Key, album.Name)
-	framework.SetString(Album_Name_Key, string(content))
+	framework.SetString(Album_Name_Key+album.Name, string(content))
 }
 
 func (this *AlbumHelper) EditAlbum(album model.Album) {
 	content, _ := json.Marshal(album)
 	framework.WriteFile(string(content), path.Join(album.Path, AMBUM_JSON))
 
-	framework.SetString(Album_Name_Key, string(content))
+	framework.SetString(Album_Name_Key+album.Name, string(content))
 
 }
 
-///TODO:
 func (this *AlbumHelper) DeleteAlbumPic(albumPath string, picName string, deleteType string) {
 	///org
 	if deleteType == model.DeleteImage {

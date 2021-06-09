@@ -43,7 +43,7 @@ func SetString(key string, value string) error {
 	return redisdb.Set(key, value, TTL).Err()
 }
 func GetString(key string) string {
-	val, err := redisdb.Get("key").Result()
+	val, err := redisdb.Get(key).Result()
 	if err != nil {
 		return ""
 	}
