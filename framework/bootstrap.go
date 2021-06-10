@@ -23,35 +23,96 @@ func isPost(name string) (bool, string) {
 	return false, name
 }
 
-func Bootstrap(o *model.BaseController, routeBase string, handler func(http.ResponseWriter, *http.Request)) {
+var controllerMap = map[string]map[string]model.RouterMap{}
 
-	routerList := map[string]model.RouterMap{}
-	controllerValue := reflect.ValueOf(o).Elem().Elem()
-	controllerType := reflect.TypeOf(*o)
-	for methodIndex := 0; methodIndex < controllerValue.NumMethod(); methodIndex++ {
-
-		methodType := controllerType.Method(methodIndex)
-		methodValue := controllerValue.Method(methodIndex)
-
-		if strings.EqualFold(methodType.Name, "process") {
-			continue
-		}
-
-		route := &model.RouterMap{}
-		route.Controller = methodValue
-		post, routeName := isPost(methodType.Name)
-
-		if methodValue.Type().NumIn() > 0 {
-			route.ArgType = methodValue.Type().In(0).Elem()
-		} else {
-			route.ArgType = nil
-		}
-		routerList[routeName] = *route
-
-		fmt.Println(post, "router:", routeName, routeBase+routeName, methodValue)
+func Process(resp http.ResponseWriter, request *http.Request) {
+	isPost := false
+	httpMethodName := "Get"
+	if strings.EqualFold(request.Method, "POST") {
+		isPost = true
+		httpMethodName = "Post"
 	}
-	v := controllerValue.Elem()
-	routeField := v.FieldByName("RouterList")
-	routeField.Set(reflect.ValueOf(routerList))
-	http.HandleFunc(routeBase, handler)
+	urls := strings.Split(request.URL.Path, "/")
+	routeBase := urls[2]
+
+	controller, hasController := controllerMap[routeBase]
+	if !hasController {
+		resss, _ := json.Marshal(fmt.Sprint("404:     ", httpMethodName, ":", request.URL.Path))
+		resp.Write(resss)
+		return
+	}
+
+	route, hasRoute := controller[urls[3]]
+
+	if !hasRoute {
+		resss, _ := json.Marshal(fmt.Sprint("404:     ", httpMethodName, ":", request.URL.Path))
+		resp.Write(resss)
+		return
+	}
+
+	if isPost == route.IsPost {
+		resss, _ := json.Marshal(fmt.Sprint("404:     ", httpMethodName, ":", request.URL.Path))
+		resp.Write(resss)
+		return
+	}
+
+	var result []reflect.Value
+	if route.ArgType == nil {
+		result = route.Controller.Call(nil)
+	} else {
+		a := reflect.New(route.ArgType).Interface()
+		MustJSONDecode(ReadBody(request.Body), a)
+		args := []reflect.Value{reflect.ValueOf(a)}
+		result = route.Controller.Call(args)
+	}
+
+	r, err := json.Marshal(result[0].Interface())
+	if err != nil {
+		fmt.Println("err:", err)
+	}
+	resp.Write(r)
+}
+
+func Bootstrap(ControllerList ...model.ControllerData) {
+	for _, curController := range ControllerList {
+
+		controller := curController.Controller
+
+		controllerName := curController.ControllerName
+
+		routerList := map[string]model.RouterMap{}
+		controllerValue := reflect.ValueOf(controller).Elem().Elem()
+		controllerType := reflect.TypeOf(*controller)
+		for methodIndex := 0; methodIndex < controllerValue.NumMethod(); methodIndex++ {
+
+			methodType := controllerType.Method(methodIndex)
+			methodValue := controllerValue.Method(methodIndex)
+
+			if strings.EqualFold(methodType.Name, "process") {
+				continue
+			}
+
+			route := &model.RouterMap{}
+			route.Controller = methodValue
+			post, routeName := isPost(methodType.Name)
+
+			if methodValue.Type().NumIn() > 0 {
+				route.ArgType = methodValue.Type().In(0).Elem()
+			} else {
+				route.ArgType = nil
+			}
+			routerList[routeName] = *route
+			httpMethod := "get"
+			if post {
+				httpMethod = "post"
+			}
+
+			fmt.Println(httpMethod, "router:", routeName, controllerName+routeName, methodValue)
+		}
+		v := controllerValue.Elem()
+		routeField := v.FieldByName("RouterList")
+		routeField.Set(reflect.ValueOf(routerList))
+		controllerMap[controllerName] = routerList
+	}
+	http.HandleFunc("/api/", Process)
 }

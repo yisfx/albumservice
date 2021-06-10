@@ -1,17 +1,16 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
-	"strconv"
-
 	"albumservice/albumtool"
 	"albumservice/controller"
 	"albumservice/framework"
+	model "albumservice/model"
+	"fmt"
+	"net/http"
+	"strconv"
 )
 
 func main() {
-
 	conf := *framework.ReadSysConf()
 	globalConf := *framework.ReadGlobalConf((conf.GlobalConfig))
 	fmt.Println(conf, globalConf)
@@ -27,9 +26,11 @@ func main() {
 	// framework.ExampleClient_Tx()
 	// framework.ExampleClient_Script()
 	// framework.ExampleClient_PubSub()
-
 	manageController := controller.NewAlbumManageController(conf, globalConf)
-	framework.Bootstrap(&manageController, "/Manage/", manageController.Process)
+
+	framework.Bootstrap(
+		*model.NewControllerData("Manage", &manageController),
+	)
 
 	http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
 		response.Write([]byte("hello world"))

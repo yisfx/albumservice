@@ -1,15 +1,9 @@
 package controller
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/http"
 	"path"
-	"reflect"
-	"strings"
 
 	"albumservice/albumtool"
-	"albumservice/framework"
 	model "albumservice/model"
 	requestModel "albumservice/model/request"
 	responseModel "albumservice/model/response"
@@ -27,32 +21,6 @@ func NewAlbumManageController(SysConf model.SysConf, GlobalConf model.GlobalConf
 	o.SysConfig = SysConf
 	o.GlobalConf = GlobalConf
 	return o
-}
-
-func (controller *AlbumManage) Process(resp http.ResponseWriter, request *http.Request) {
-	urls := strings.Split(request.URL.Path, "/")
-
-	route, isok := controller.RouterList[urls[2]]
-	if !isok {
-		var result404, _ = json.Marshal(404)
-		resp.Write(result404)
-		return
-	}
-	var result []reflect.Value
-	if route.ArgType == nil {
-		result = route.Controller.Call(nil)
-	} else {
-		a := reflect.New(route.ArgType).Interface()
-		framework.MustJSONDecode(framework.ReadBody(request.Body), a)
-		args := []reflect.Value{reflect.ValueOf(a)}
-		result = route.Controller.Call(args)
-	}
-
-	r, err := json.Marshal(result[0].Interface())
-	if err != nil {
-		fmt.Println("err:", err)
-	}
-	resp.Write(r)
 }
 
 func (controller *AlbumManage) Post_GetAlbumList() responseModel.AlbumListResponse {
