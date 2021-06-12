@@ -53,7 +53,8 @@ func (this *AlbumHelper) GetAlbum(albumName string) *model.Album {
 }
 
 func (this *AlbumHelper) GetPicForAlbum(albumName string) []model.Picture {
-	picList := []model.Picture{}
+	var picList []model.Picture
+	picList = []model.Picture{}
 	var picNameList []string
 	picNameList = framework.GetList(Album_Picture_List_Key + albumName)
 	for _, picName := range picNameList {
@@ -160,6 +161,9 @@ func (this *AlbumHelper) EditAlbum(album model.Album) {
 
 }
 
+func (this *AlbumHelper) AddAlbumPicture(albumName string, pictureName string) {
+	framework.SetList(Album_Picture_List_Key+albumName, pictureName)
+}
 func (this *AlbumHelper) DeleteAlbumPic(albumPath string, picName string, deleteType string) {
 	///org
 	if deleteType == model.DeleteImage {

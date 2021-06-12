@@ -16,7 +16,6 @@ func main() {
 	fmt.Println(conf, globalConf)
 
 	framework.RedisConnect(globalConf.Redis.Port, globalConf.Redis.Pwd)
-
 	// framework.ExampleClient_Hash()
 	// framework.ExampleClient_Set()
 	// framework.ExampleClient_SortSet()

@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"fmt"
 	"path"
+	"strings"
 
 	"albumservice/albumtool"
 	model "albumservice/model"
@@ -64,14 +64,19 @@ func (controller *AlbumManage) Post_GetAlbumPicList(r *requestModel.GetAlbumPicL
 	return result
 }
 
-func (controller *AlbumManage) Post_UploadImage(r *requestModel.UploadPictureRequest) {
+func (controller *AlbumManage) Post_UploadImage(r *requestModel.UploadPictureRequest) *responseModel.BaseResponse {
 	albumHelper := albumtool.NewAlbumHelper()
-	// result := new(responseModel.BaseResponse)
+	result := new(responseModel.BaseResponse)
 	picList := albumHelper.GetPicForAlbum(r.AlbumName)
 	for _, pic := range picList {
-		fmt.Println(pic)
+		if strings.EqualFold(pic.Name, r.PictureName) {
+			result.Result = false
+			result.ErrorMessage = "picture exist"
+			return result
+		}
 	}
-
+	albumHelper.AddAlbumPicture(r.AlbumName, r.PictureName)
+	return result
 }
 
 func (controller *AlbumManage) Post_BuildAlbumImage(r *requestModel.GetAlbumPicListRequest) *responseModel.BaseResponse {
