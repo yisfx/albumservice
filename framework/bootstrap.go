@@ -28,7 +28,7 @@ var controllerMap = map[string]map[string]model.RouterMap{}
 func Process(resp http.ResponseWriter, request *http.Request) {
 	isPost := false
 	httpMethodName := "Get"
-	if strings.EqualFold(request.Method, "POST") {
+	if strings.EqualFold(request.Method, "Post") {
 		isPost = true
 		httpMethodName = "Post"
 	}
@@ -50,7 +50,7 @@ func Process(resp http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	if isPost == route.IsPost {
+	if isPost != route.IsPost {
 		resss, _ := json.Marshal(fmt.Sprint("404:     ", httpMethodName, ":", request.URL.Path))
 		resp.Write(resss)
 		return
@@ -101,6 +101,7 @@ func Bootstrap(ControllerList ...model.ControllerData) {
 			} else {
 				route.ArgType = nil
 			}
+			route.IsPost = post
 			routerList[routeName] = *route
 			httpMethod := "get"
 			if post {
