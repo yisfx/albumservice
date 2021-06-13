@@ -4,6 +4,7 @@ import (
 	framework "albumservice/framework"
 	model "albumservice/model"
 	"encoding/json"
+	"fmt"
 	"path"
 	"strings"
 )
@@ -15,6 +16,8 @@ const (
 	Album_Picture_List_Key = "album_picture_list_" //list album_picture_list_aaa
 	//TODO:
 	Picture_Key = "picture_" //string picture_IMG_20210505_115601
+
+	Picture_Cache_Key = "picture_Cache_" // string picture_Cache_aaa_IMG_20210505_115601_index
 )
 
 type AlbumHelper struct {
@@ -189,6 +192,26 @@ func (this *AlbumHelper) DeleteAlbumPic(albumPath string, picName string, delete
 		//mini
 		framework.DeleteFile(albumPath + "/" + picName + "-mini.jpg")
 	}
+}
+
+func (this *AlbumHelper) CacheUploadImage(albumName string, pictureName string, index int, cacheData string) {
+	framework.SetTempCache(fmt.Sprint(Picture_Cache_Key, albumName, "_", pictureName, "_", index), cacheData)
+}
+func (this *AlbumHelper) BuildCacheUploadImage(albumName string, pictureName string, lastIndex int) {
+	cacheData := *new([]string)
+	cacheKey := fmt.Sprint(Picture_Cache_Key, albumName, "_", pictureName, "_")
+	for index := 0; index <= lastIndex; index++ {
+		str := framework.GetString(fmt.Sprint(cacheKey, index))
+		if str != "" {
+			cacheData = append(cacheData, str)
+			framework.DelKey(fmt.Sprint(cacheKey, index))
+		}
+	}
+	fmt.Println(strings.Join(cacheData, ""))
+	///save base64 image
+	album := this.GetAlbum(albumName)
+
+	this.AddAlbumPicture(album, pictureName)
 }
 
 func NewAlbumHelper() *AlbumHelper {

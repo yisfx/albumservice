@@ -100,3 +100,12 @@ func (controller *AlbumManage) Post_DeleteAlbumPic(r *requestModel.DeleteAlbumPi
 	result.Result = true
 	return result
 }
+
+func (controller *AlbumManage) Post_UploadImagePart(r *requestModel.PicturePartUploadRequest) {
+	albumHelper := &albumtool.AlbumHelper{}
+	albumHelper.CacheUploadImage(r.AlbumName, r.PictureName, r.PartIndex, r.Value)
+	if r.IsLastPart {
+		albumHelper.BuildCacheUploadImage(r.AlbumName, r.PictureName, r.PartIndex)
+	}
+
+}

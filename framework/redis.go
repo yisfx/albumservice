@@ -39,6 +39,12 @@ func testRedisBase() {
 
 const TTL = 356 * 24 * time.Hour
 
+const TempPictureTTL = 2 * time.Minute
+
+func SetTempCache(key string, value string) {
+	redisdb.Set(key, value, TempPictureTTL)
+}
+
 func SetString(key string, value string) error {
 	return redisdb.Set(key, value, TTL).Err()
 }
