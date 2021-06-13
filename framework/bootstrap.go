@@ -69,12 +69,16 @@ func Process(resp http.ResponseWriter, request *http.Request) {
 		args := []reflect.Value{reflect.ValueOf(a)}
 		result = route.Controller.Call(args)
 	}
+	if result == nil {
+		resp.Write(([]byte)("are you ok?"))
+	} else {
+		r, err := json.Marshal(result[0].Interface())
+		if err != nil {
+			fmt.Println("err:", err)
+		}
 
-	r, err := json.Marshal(result[0].Interface())
-	if err != nil {
-		fmt.Println("err:", err)
+		resp.Write(r)
 	}
-	resp.Write(r)
 }
 
 func Bootstrap(ControllerList ...model.ControllerData) {

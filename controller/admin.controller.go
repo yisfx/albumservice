@@ -6,8 +6,8 @@ import (
 
 	"albumservice/albumtool"
 	model "albumservice/model"
-	requestModel "albumservice/model/request"
-	responseModel "albumservice/model/response"
+	"albumservice/model/request"
+	"albumservice/model/response"
 )
 
 type AlbumManage struct {
@@ -24,19 +24,19 @@ func NewAlbumManageController(SysConf model.SysConf, GlobalConf model.GlobalConf
 	return o
 }
 
-func (controller *AlbumManage) Post_GetAlbumList() responseModel.AlbumListResponse {
+func (controller *AlbumManage) Post_GetAlbumList() response.AlbumListResponse {
 	albumHelper := albumtool.AlbumHelper{}
 	albumList := albumHelper.GetAlbumList()
-	result := responseModel.AlbumListResponse{}
+	result := response.AlbumListResponse{}
 	result.BaseResponse.Result = true
 	result.AlbumList = albumList
 	return result
 }
 
-func (controller *AlbumManage) Post_AddAlbum(r *requestModel.AddAlbumRequest) *responseModel.AddAlbumResponse {
+func (controller *AlbumManage) Post_AddAlbum(r *request.AddAlbumRequest) *response.AddAlbumResponse {
 	a := r.Album
 	albumHelper := albumtool.NewAlbumHelper()
-	result := new(responseModel.AddAlbumResponse)
+	result := new(response.AddAlbumResponse)
 	a.Path = path.Join(controller.GlobalConf.AlbumPath, a.Name)
 	if albumHelper.ExistsAlbum(a.Name) {
 		///edit
@@ -50,9 +50,9 @@ func (controller *AlbumManage) Post_AddAlbum(r *requestModel.AddAlbumRequest) *r
 	return result
 }
 
-func (controller *AlbumManage) Post_GetAlbumPicList(r *requestModel.GetAlbumPicListRequest) *responseModel.GetAlbumPicListResponse {
+func (controller *AlbumManage) Post_GetAlbumPicList(r *request.GetAlbumPicListRequest) *response.GetAlbumPicListResponse {
 	albumHelper := albumtool.NewAlbumHelper()
-	result := new(responseModel.GetAlbumPicListResponse)
+	result := new(response.GetAlbumPicListResponse)
 	if !albumHelper.ExistsAlbum(r.AlbumName) {
 		result.BaseResponse.Result = false
 		result.BaseResponse.ErrorMessage = "hasn't this Album"
@@ -64,9 +64,9 @@ func (controller *AlbumManage) Post_GetAlbumPicList(r *requestModel.GetAlbumPicL
 	return result
 }
 
-func (controller *AlbumManage) Post_UploadImage(r *requestModel.UploadPictureRequest) *responseModel.BaseResponse {
+func (controller *AlbumManage) Post_UploadImage(r *request.UploadPictureRequest) *response.BaseResponse {
 	albumHelper := albumtool.NewAlbumHelper()
-	result := new(responseModel.BaseResponse)
+	result := new(response.BaseResponse)
 	album := albumHelper.GetAlbum(r.AlbumName)
 	for _, pic := range album.PicList {
 		if strings.EqualFold(pic.Name, r.PictureName) {
@@ -80,9 +80,9 @@ func (controller *AlbumManage) Post_UploadImage(r *requestModel.UploadPictureReq
 	return result
 }
 
-func (controller *AlbumManage) Post_BuildAlbumImage(r *requestModel.GetAlbumPicListRequest) *responseModel.BaseResponse {
+func (controller *AlbumManage) Post_BuildAlbumImage(r *request.GetAlbumPicListRequest) *response.BaseResponse {
 	albumHelper := albumtool.NewAlbumHelper()
-	result := new(responseModel.BaseResponse)
+	result := new(response.BaseResponse)
 	if albumHelper.ExistsAlbum(r.AlbumName) {
 		go albumtool.In(r.AlbumName)
 		result.Result = true
@@ -93,19 +93,21 @@ func (controller *AlbumManage) Post_BuildAlbumImage(r *requestModel.GetAlbumPicL
 	return result
 }
 
-func (controller *AlbumManage) Post_DeleteAlbumPic(r *requestModel.DeleteAlbumPicRequest) *responseModel.BaseResponse {
+func (controller *AlbumManage) Post_DeleteAlbumPic(r *request.DeleteAlbumPicRequest) *response.BaseResponse {
 	albumHelper := albumtool.NewAlbumHelper()
-	result := new(responseModel.BaseResponse)
+	result := new(response.BaseResponse)
 	albumHelper.DeleteAlbumPic(path.Join(controller.GlobalConf.AlbumPath, r.AlbumName), r.PicName, r.DeleteType)
 	result.Result = true
 	return result
 }
 
-func (controller *AlbumManage) Post_UploadImagePart(r *requestModel.PicturePartUploadRequest) {
+func (controller *AlbumManage) Post_UploadImagePart(r *request.PicturePartUploadRequest) *response.BaseResponse {
 	albumHelper := &albumtool.AlbumHelper{}
 	albumHelper.CacheUploadImage(r.AlbumName, r.PictureName, r.PartIndex, r.Value)
 	if r.IsLastPart {
 		albumHelper.BuildCacheUploadImage(r.AlbumName, r.PictureName, r.PartIndex)
 	}
-
+	result := new(response.BaseResponse)
+	result.Result = true
+	return result
 }
