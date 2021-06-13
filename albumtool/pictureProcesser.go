@@ -30,9 +30,10 @@ func Out() {
 	}
 }
 
-func buildAlbum(albumPath string) {
+func buildAlbum(albumName string) {
 	albumHelper := NewAlbumHelper()
-	album := albumHelper.GetAlbum(albumPath)
+	album := albumHelper.GetAlbum(albumName)
+
 	for _, pic := range album.PicList {
 
 		file, _ := os.Open(pic.OrgPath)

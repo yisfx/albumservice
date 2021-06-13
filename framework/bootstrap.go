@@ -25,6 +25,13 @@ func isPost(name string) (bool, string) {
 
 var controllerMap = map[string]map[string]model.RouterMap{}
 
+func Response404(resp http.ResponseWriter, httpMethodName string, request *http.Request) {
+	fmt.Println("404 :", httpMethodName, request.URL.Path)
+	resss, _ := json.Marshal(fmt.Sprint("404:     ", httpMethodName, ":", request.URL.Path))
+	resp.Write(resss)
+	return
+}
+
 func Process(resp http.ResponseWriter, request *http.Request) {
 	isPost := false
 	httpMethodName := "Get"
@@ -37,22 +44,19 @@ func Process(resp http.ResponseWriter, request *http.Request) {
 
 	controller, hasController := controllerMap[routeBase]
 	if !hasController {
-		resss, _ := json.Marshal(fmt.Sprint("404:     ", httpMethodName, ":", request.URL.Path))
-		resp.Write(resss)
+		Response404(resp, httpMethodName, request)
 		return
 	}
 
 	route, hasRoute := controller[urls[3]]
 
 	if !hasRoute {
-		resss, _ := json.Marshal(fmt.Sprint("404:     ", httpMethodName, ":", request.URL.Path))
-		resp.Write(resss)
+		Response404(resp, httpMethodName, request)
 		return
 	}
 
 	if isPost != route.IsPost {
-		resss, _ := json.Marshal(fmt.Sprint("404:     ", httpMethodName, ":", request.URL.Path))
-		resp.Write(resss)
+		Response404(resp, httpMethodName, request)
 		return
 	}
 

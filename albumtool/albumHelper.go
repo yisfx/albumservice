@@ -159,17 +159,17 @@ func (this *AlbumHelper) EditAlbum(album model.Album) {
 	framework.SetString(Album_Name_Key+album.Name, string(content))
 }
 
-func (this *AlbumHelper) AddAlbumPicture(albumName string, pictureName string) {
+func (this *AlbumHelper) AddAlbumPicture(album *model.Album, pictureName string) {
 	pic := model.Picture{
 		Name:     pictureName,
-		MiniPath: path.Join(albumName, pictureName+"-mini.jpg"),
-		MaxPath:  path.Join(albumName, pictureName+"-max.jpg"),
-		OrgPath:  path.Join(albumName, pictureName+"-org.jpg"),
-		Album:    albumName,
+		MiniPath: path.Join(album.Path, pictureName+"-mini.jpg"),
+		MaxPath:  path.Join(album.Path, pictureName+"-max.jpg"),
+		OrgPath:  path.Join(album.Path, pictureName+"-org.jpg"),
+		Album:    album.Name,
 	}
 	picData, err := json.Marshal(pic)
-	if err != nil {
-		framework.SetList(Album_Picture_List_Key+albumName, pictureName)
+	if err == nil {
+		framework.SetList(Album_Picture_List_Key+album.Name, pictureName)
 		framework.SetString(Picture_Key+pictureName, string(picData))
 	}
 }

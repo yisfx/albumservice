@@ -67,15 +67,16 @@ func (controller *AlbumManage) Post_GetAlbumPicList(r *requestModel.GetAlbumPicL
 func (controller *AlbumManage) Post_UploadImage(r *requestModel.UploadPictureRequest) *responseModel.BaseResponse {
 	albumHelper := albumtool.NewAlbumHelper()
 	result := new(responseModel.BaseResponse)
-	picList := albumHelper.GetPicForAlbum(r.AlbumName)
-	for _, pic := range picList {
+	album := albumHelper.GetAlbum(r.AlbumName)
+	for _, pic := range album.PicList {
 		if strings.EqualFold(pic.Name, r.PictureName) {
 			result.Result = false
 			result.ErrorMessage = "picture exist"
 			return result
 		}
 	}
-	albumHelper.AddAlbumPicture(r.AlbumName, r.PictureName)
+	albumHelper.AddAlbumPicture(album, r.PictureName)
+	result.Result = true
 	return result
 }
 
@@ -83,7 +84,7 @@ func (controller *AlbumManage) Post_BuildAlbumImage(r *requestModel.GetAlbumPicL
 	albumHelper := albumtool.NewAlbumHelper()
 	result := new(responseModel.BaseResponse)
 	if albumHelper.ExistsAlbum(r.AlbumName) {
-		go albumtool.In(path.Join(controller.GlobalConf.AlbumPath, r.AlbumName))
+		go albumtool.In(r.AlbumName)
 		result.Result = true
 	} else {
 		result.Result = false
