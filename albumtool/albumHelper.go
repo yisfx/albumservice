@@ -72,45 +72,7 @@ func (this *AlbumHelper) GetPicForAlbum(albumName string) []model.Picture {
 	}
 	return picList
 }
-
-func (this *AlbumHelper) BuildAlbumList(dirPath string) {
-	pathList := fileTool.GetFloderListFromPath(dirPath)
-	if pathList == nil {
-		return
-	}
-	for _, album := range pathList {
-		if this.ExistsAlbum(album) {
-			continue
-		}
-		albumConfPath := path.Join(dirPath, album, AMBUM_JSON)
-		albumConf := &model.Album{}
-		confStr := fileTool.GetFileContentByName(path.Join(albumConfPath))
-		if confStr == "" {
-			continue
-		}
-		json.Unmarshal([]byte(confStr), albumConf)
-
-		albumConf.Path = path.Join(dirPath, album)
-		///save albumList
-		redisTool.SetList(Album_List_Key, albumConf.Name)
-		///save album conf
-		value, err := json.Marshal(albumConf)
-		if err == nil {
-			redisTool.SetString(Album_Name_Key+albumConf.Name, string(value))
-		}
-	}
-}
-
-func getPicName(picName string) string {
-
-	names := strings.Split(picName, "-")
-	if len(names) == 3 {
-		return names[0] + "-" + names[1]
-	}
-	return names[0]
-}
-
-func buildPicForAlbum(album model.Album) {
+func (this *AlbumHelper) BuildPicForAlbum(album *model.Album) {
 	fileList := fileTool.GetFileListByPath(album.Path)
 	if fileList == nil {
 		return
@@ -124,20 +86,62 @@ func buildPicForAlbum(album model.Album) {
 			}
 		}
 	}
+
+	picList := redisTool.GetList(Album_Picture_List_Key + album.Name)
 	for n := range p {
 		pic := model.Picture{
 			Name:     n,
 			MiniPath: path.Join(album.Path, n+"-mini.jpg"),
 			MaxPath:  path.Join(album.Path, n+"-max.jpg"),
-			OrgPath:  path.Join(album.Path, n+"-org.jpg"),
+			OrgPath:  path.Join(album.Path, n+".jpg"),
 			Album:    album.Name,
 		}
 		picData, err := json.Marshal(pic)
-		if err != nil {
-			redisTool.SetList(Album_Picture_List_Key+album.Name, n)
+		if err == nil {
+			if !utils.IsExist(picList, n, true) {
+				redisTool.SetList(Album_Picture_List_Key+album.Name, n)
+			}
 			redisTool.SetString(Picture_Key+n, string(picData))
 		}
 	}
+}
+func (this *AlbumHelper) BuildAlbumList(dirPath string) {
+	pathList := fileTool.GetFloderListFromPath(dirPath)
+	if pathList == nil {
+		return
+	}
+	for _, album := range pathList {
+
+		albumConfPath := path.Join(dirPath, album, AMBUM_JSON)
+		albumConf := &model.Album{}
+		confStr := fileTool.GetFileContentByName(path.Join(albumConfPath))
+		if confStr == "" {
+			continue
+		}
+		json.Unmarshal([]byte(confStr), albumConf)
+
+		albumConf.Path = path.Join(dirPath, album)
+
+		if !this.ExistsAlbum(album) {
+			///save albumList
+			redisTool.SetList(Album_List_Key, albumConf.Name)
+		}
+
+		///save album conf
+		value, err := json.Marshal(albumConf)
+		if err == nil {
+			redisTool.SetString(Album_Name_Key+albumConf.Name, string(value))
+		}
+	}
+}
+
+func getPicName(picName string) string {
+	picName = strings.ToLower(picName)
+	picName = strings.ReplaceAll(picName, "-mini", "")
+	picName = strings.ReplaceAll(picName, "-max", "")
+	picName = strings.ReplaceAll(picName, "-org", "")
+	names := strings.Split(picName, ".")
+	return names[0]
 }
 
 func (this *AlbumHelper) ExistsAlbum(albumName string) bool {
@@ -165,6 +169,7 @@ func (this *AlbumHelper) CreateAlbum(album model.Album) {
 
 func (this *AlbumHelper) EditAlbum(album model.Album) {
 	content, _ := json.Marshal(album)
+
 	fileTool.WriteFile(string(content), path.Join(album.Path, AMBUM_JSON))
 	redisTool.SetString(Album_Name_Key+album.Name, string(content))
 }

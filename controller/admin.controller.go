@@ -120,3 +120,14 @@ func (controller *AlbumManage) Post_BuildAllAlbum() *response.BaseResponse {
 	result.Result = true
 	return &result
 }
+
+func (controller *AlbumManage) Post_BuildPicForAlbum() *response.BaseResponse {
+	albumHelper := albumtool.NewAlbumHelper()
+	albumList := albumHelper.GetAlbumList()
+	for _, album := range albumList {
+		albumHelper.BuildPicForAlbum(&album)
+	}
+	result := new(response.BaseResponse)
+	result.Result = true
+	return result
+}
