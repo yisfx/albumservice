@@ -112,3 +112,11 @@ func (controller *AlbumManage) Post_UploadImagePart(r *request.PicturePartUpload
 	result.Result = true
 	return result
 }
+
+func (controller *AlbumManage) Post_BuildAllAlbum() *response.BaseResponse {
+	albumHelper := &albumtool.AlbumHelper{}
+	albumHelper.BuildAlbumList(controller.GlobalConf.AlbumPath)
+	result := response.BaseResponse{}
+	result.Result = true
+	return &result
+}

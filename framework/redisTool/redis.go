@@ -37,7 +37,7 @@ func testRedisBase() {
 	ExampleClient_PubSub()
 }
 
-const TTL = 356 * 24 * time.Hour
+const TTL = -1
 
 const TempPictureTTL = 2 * time.Minute
 
