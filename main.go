@@ -3,7 +3,9 @@ package main
 import (
 	"albumservice/albumtool"
 	"albumservice/controller"
-	"albumservice/framework"
+	"albumservice/framework/bootstrap"
+	"albumservice/framework/configTool"
+	"albumservice/framework/redisTool"
 	model "albumservice/model"
 	"fmt"
 	"net/http"
@@ -11,13 +13,11 @@ import (
 )
 
 func main() {
-	conf := *framework.ReadSysConf()
-	globalConf := *framework.ReadGlobalConf((conf.GlobalConfig))
+	conf := *configTool.ReadSysConf()
+	globalConf := *configTool.ReadGlobalConf((conf.GlobalConfig))
 	fmt.Println(conf, globalConf)
 
-	framework.RedisConnect(globalConf.Redis.Port, globalConf.Redis.Pwd)
-
-	framework.Base64ToImage()
+	redisTool.RedisConnect(globalConf.Redis.Port, globalConf.Redis.Pwd)
 
 	// framework.ExampleClient_Hash()
 	// framework.ExampleClient_Set()
@@ -30,7 +30,7 @@ func main() {
 	// framework.ExampleClient_PubSub()
 	manageController := controller.NewAlbumManageController(conf, globalConf)
 
-	framework.Bootstrap(
+	bootstrap.Bootstrap(
 		*model.NewControllerData("Manage", &manageController),
 	)
 

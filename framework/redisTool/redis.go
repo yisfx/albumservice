@@ -1,4 +1,4 @@
-package framework
+package redisTool
 
 import (
 	"fmt"

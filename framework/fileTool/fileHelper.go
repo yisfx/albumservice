@@ -1,4 +1,4 @@
-package framework
+package fileTool
 
 import (
 	"fmt"

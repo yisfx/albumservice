@@ -96,7 +96,8 @@ func (controller *AlbumManage) Post_BuildAlbumImage(r *request.GetAlbumPicListRe
 func (controller *AlbumManage) Post_DeleteAlbumPic(r *request.DeleteAlbumPicRequest) *response.BaseResponse {
 	albumHelper := albumtool.NewAlbumHelper()
 	result := new(response.BaseResponse)
-	albumHelper.DeleteAlbumPic(path.Join(controller.GlobalConf.AlbumPath, r.AlbumName), r.PicName, r.DeleteType)
+	album := albumHelper.GetAlbum(r.AlbumName)
+	albumHelper.DeleteAlbumPic(album, r.PicName, r.DeleteType)
 	result.Result = true
 	return result
 }

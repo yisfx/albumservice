@@ -1,4 +1,4 @@
-package framework
+package bootstrap
 
 import (
 	model "albumservice/model"

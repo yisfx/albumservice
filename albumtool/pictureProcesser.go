@@ -1,12 +1,12 @@
 package albumtool
 
 import (
+	"albumservice/framework/fileTool"
+	"albumservice/framework/utils"
+	model "albumservice/model"
 	"image"
 	"os"
 	"time"
-
-	"albumservice/framework"
-	model "albumservice/model"
 )
 
 type PictureProcesser struct {
@@ -45,10 +45,10 @@ func buildAlbum(albumName string) {
 			max = c.Height
 		}
 		file.Close()
-		if !framework.FileExists(pic.MaxPath) {
+		if !fileTool.FileExists(pic.MaxPath) {
 			buildMaxPic(pic.OrgPath, pic.MaxPath, max)
 		}
-		if !framework.FileExists(pic.MiniPath) {
+		if !fileTool.FileExists(pic.MiniPath) {
 			buildMiniPic(pic.MaxPath, pic.MiniPath, max)
 		}
 	}
@@ -56,9 +56,9 @@ func buildAlbum(albumName string) {
 
 func buildMaxPic(org string, max string, width int) {
 	w := uint(width)
-	framework.CompressImg(org, w, max)
+	utils.CompressImg(org, w, max)
 }
 func buildMiniPic(max string, mini string, width int) {
 	w := uint(width / 2)
-	framework.CompressImg(max, w, mini)
+	utils.CompressImg(max, w, mini)
 }
