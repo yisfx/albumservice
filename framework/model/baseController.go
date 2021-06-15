@@ -1,7 +1,6 @@
 package model
 
 import (
-	"net/http"
 	"reflect"
 )
 
@@ -14,7 +13,6 @@ type RouterMap struct {
 }
 
 type BaseController interface {
-	Process(res http.ResponseWriter, request *http.Request)
 }
 
 type ControllerData struct {
