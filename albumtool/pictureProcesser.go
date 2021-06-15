@@ -3,7 +3,7 @@ package albumtool
 import (
 	"albumservice/framework/fileTool"
 	"albumservice/framework/utils"
-	model "albumservice/model"
+	"albumservice/framework/model"
 	"image"
 	"os"
 	"time"

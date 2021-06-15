@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"albumservice/framework/fileTool"
-	model "albumservice/model"
+	"albumservice/framework/model"
 )
 
 // ReadSysConf

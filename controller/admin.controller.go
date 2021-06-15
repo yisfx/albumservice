@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"albumservice/albumtool"
-	model "albumservice/model"
+	"albumservice/framework/model"
 	"albumservice/model/request"
 	"albumservice/model/response"
 )

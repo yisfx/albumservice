@@ -6,7 +6,7 @@ import (
 	"albumservice/framework/bootstrap"
 	"albumservice/framework/configTool"
 	"albumservice/framework/redisTool"
-	model "albumservice/model"
+	"albumservice/framework/model"
 	"fmt"
 	"net/http"
 	"strconv"

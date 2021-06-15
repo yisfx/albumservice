@@ -4,7 +4,8 @@ import (
 	"albumservice/framework/fileTool"
 	"albumservice/framework/redisTool"
 	"albumservice/framework/utils"
-	model "albumservice/model"
+	"albumservice/model/albumConst"
+	"albumservice/model"
 	"encoding/json"
 	"fmt"
 	"path"
@@ -25,9 +26,8 @@ const (
 type AlbumHelper struct {
 }
 
-func (this *AlbumHelper) GetAlbumList() []model.Album {
-	var albumNameList []string
-	albumNameList = redisTool.GetList(Album_List_Key)
+func (albumHelper *AlbumHelper) GetAlbumList() []model.Album {
+	albumNameList := redisTool.GetList(Album_List_Key)
 	albumList := []model.Album{}
 	for _, albumName := range albumNameList {
 		confStr := redisTool.GetString(Album_Name_Key + albumName)
@@ -43,7 +43,7 @@ func (this *AlbumHelper) GetAlbumList() []model.Album {
 	return albumList
 }
 
-func (this *AlbumHelper) GetAlbum(albumName string) *model.Album {
+func (albumHelper *AlbumHelper) GetAlbum(albumName string) *model.Album {
 	confStr := redisTool.GetString(Album_Name_Key + albumName)
 	if confStr == "" {
 		return nil
@@ -52,16 +52,16 @@ func (this *AlbumHelper) GetAlbum(albumName string) *model.Album {
 	json.Unmarshal([]byte(confStr), albumConf)
 	if albumConf != nil {
 
-		albumConf.PicList = this.GetPicForAlbum(albumName)
+		albumConf.PicList = albumHelper.GetPicForAlbum(albumName)
 	}
 	return albumConf
 }
 
-func (this *AlbumHelper) GetPicForAlbum(albumName string) []model.Picture {
+func (thialbumHelpers *AlbumHelper) GetPicForAlbum(albumName string) []model.Picture {
 	var picList []model.Picture
 	picList = []model.Picture{}
-	var picNameList []string
-	picNameList = redisTool.GetList(Album_Picture_List_Key + albumName)
+
+	picNameList := redisTool.GetList(Album_Picture_List_Key + albumName)
 	for _, picName := range picNameList {
 		pic := &model.Picture{}
 		str := redisTool.GetString(Picture_Key + picName)
@@ -72,7 +72,8 @@ func (this *AlbumHelper) GetPicForAlbum(albumName string) []model.Picture {
 	}
 	return picList
 }
-func (this *AlbumHelper) BuildPicForAlbum(album *model.Album) {
+
+func (albumHelper *AlbumHelper) BuildPicForAlbum(album *model.Album) {
 	fileList := fileTool.GetFileListByPath(album.Path)
 	if fileList == nil {
 		return
@@ -91,9 +92,9 @@ func (this *AlbumHelper) BuildPicForAlbum(album *model.Album) {
 	for n := range p {
 		pic := model.Picture{
 			Name:     n,
-			MiniPath: path.Join(album.Path, n+"-mini.jpg"),
+			MiniPath: path.Join(album.Path, n+albumConst.MiniExtension),
 			MaxPath:  path.Join(album.Path, n+"-max.jpg"),
-			OrgPath:  path.Join(album.Path, n+".jpg"),
+			OrgPath:  path.Join(album.Path, n+"-org.jpg"),
 			Album:    album.Name,
 		}
 		picData, err := json.Marshal(pic)
@@ -105,7 +106,7 @@ func (this *AlbumHelper) BuildPicForAlbum(album *model.Album) {
 		}
 	}
 }
-func (this *AlbumHelper) BuildAlbumList(dirPath string) {
+func (albumHelper *AlbumHelper) BuildAlbumList(dirPath string) {
 	pathList := fileTool.GetFloderListFromPath(dirPath)
 	if pathList == nil {
 		return
@@ -122,7 +123,7 @@ func (this *AlbumHelper) BuildAlbumList(dirPath string) {
 
 		albumConf.Path = path.Join(dirPath, album)
 
-		if !this.ExistsAlbum(album) {
+		if !albumHelper.ExistsAlbum(album) {
 			///save albumList
 			redisTool.SetList(Album_List_Key, albumConf.Name)
 		}
@@ -144,8 +145,8 @@ func getPicName(picName string) string {
 	return names[0]
 }
 
-func (this *AlbumHelper) ExistsAlbum(albumName string) bool {
-	albumList := this.GetAlbumList()
+func (albumHelper *AlbumHelper) ExistsAlbum(albumName string) bool {
+	albumList := albumHelper.GetAlbumList()
 	b := false
 	for _, a := range albumList {
 		if strings.EqualFold(a.Name, albumName) {
@@ -156,7 +157,7 @@ func (this *AlbumHelper) ExistsAlbum(albumName string) bool {
 	return b
 }
 
-func (this *AlbumHelper) CreateAlbum(album model.Album) {
+func (albumHelper *AlbumHelper) CreateAlbum(album model.Album) {
 	///create folder
 	fileTool.CreateFolder(album.Path)
 	///write AMBUM_JSON
@@ -167,14 +168,14 @@ func (this *AlbumHelper) CreateAlbum(album model.Album) {
 	redisTool.SetString(Album_Name_Key+album.Name, string(content))
 }
 
-func (this *AlbumHelper) EditAlbum(album model.Album) {
+func (albumHelper *AlbumHelper) EditAlbum(album model.Album) {
 	content, _ := json.Marshal(album)
 
 	fileTool.WriteFile(string(content), path.Join(album.Path, AMBUM_JSON))
 	redisTool.SetString(Album_Name_Key+album.Name, string(content))
 }
 
-func (this *AlbumHelper) AddAlbumPicture(album *model.Album, pictureName string) {
+func (albumHelper *AlbumHelper) AddAlbumPicture(album *model.Album, pictureName string) {
 	pic := model.Picture{
 		Name:     pictureName,
 		MiniPath: path.Join(album.Path, pictureName+"-mini.jpg"),
@@ -188,7 +189,7 @@ func (this *AlbumHelper) AddAlbumPicture(album *model.Album, pictureName string)
 		redisTool.SetString(Picture_Key+pictureName, string(picData))
 	}
 }
-func (this *AlbumHelper) DeleteAlbumPic(album *model.Album, picName string, deleteType string) {
+func (albumHelper *AlbumHelper) DeleteAlbumPic(album *model.Album, picName string, deleteType string) {
 	///org
 	if deleteType == model.DeleteImage {
 		fileTool.DeleteFile(album.Path + "/" + picName + "-org.jpg")
@@ -206,10 +207,10 @@ func (this *AlbumHelper) DeleteAlbumPic(album *model.Album, picName string, dele
 	}
 }
 
-func (this *AlbumHelper) CacheUploadImage(albumName string, pictureName string, index int, cacheData string) {
+func (albumHelper *AlbumHelper) CacheUploadImage(albumName string, pictureName string, index int, cacheData string) {
 	redisTool.SetTempCache(fmt.Sprint(Picture_Cache_Key, albumName, "_", pictureName, "_", index), cacheData)
 }
-func (this *AlbumHelper) BuildCacheUploadImage(albumName string, pictureName string, lastIndex int) {
+func (albumHelper *AlbumHelper) BuildCacheUploadImage(albumName string, pictureName string, lastIndex int) {
 	cacheData := *new([]string)
 	cacheKey := fmt.Sprint(Picture_Cache_Key, albumName, "_", pictureName, "_")
 	for index := 0; index <= lastIndex; index++ {
@@ -219,12 +220,12 @@ func (this *AlbumHelper) BuildCacheUploadImage(albumName string, pictureName str
 			redisTool.DelKey(fmt.Sprint(cacheKey, index))
 		}
 	}
-	album := this.GetAlbum(albumName)
+	album := albumHelper.GetAlbum(albumName)
 	pictureName = album.Name + "-" + pictureName
 	///save base64 image
 	utils.Base64ToImage(strings.Join(cacheData, ""), path.Join(album.Path, pictureName+"-org.jpg"))
 
-	this.AddAlbumPicture(album, pictureName)
+	albumHelper.AddAlbumPicture(album, pictureName)
 }
 
 func NewAlbumHelper() *AlbumHelper {

@@ -1,7 +1,8 @@
 package bootstrap
 
 import (
-	model "albumservice/model"
+	"albumservice/framework/constFiled"
+	"albumservice/framework/model"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -18,7 +19,7 @@ func MustJSONDecode(b []byte, i interface{}) {
 
 func isPost(name string) (bool, string) {
 	if l := strings.Split(name, "_"); len(l) == 2 {
-		return strings.EqualFold(l[0], "Post"), l[1]
+		return strings.EqualFold(l[0], constFiled.Post), l[1]
 	}
 	return false, name
 }
@@ -34,10 +35,10 @@ func Response404(resp http.ResponseWriter, httpMethodName string, request *http.
 
 func Process(resp http.ResponseWriter, request *http.Request) {
 	isPost := false
-	httpMethodName := "Get"
-	if strings.EqualFold(request.Method, "Post") {
+	httpMethodName := constFiled.Get
+	if strings.EqualFold(request.Method, constFiled.Post) {
 		isPost = true
-		httpMethodName = "Post"
+		httpMethodName = constFiled.Post
 	}
 	urls := strings.Split(request.URL.Path, "/")
 	routeBase := urls[2]
@@ -96,10 +97,6 @@ func Bootstrap(ControllerList ...model.ControllerData) {
 			methodType := controllerType.Method(methodIndex)
 			methodValue := controllerValue.Method(methodIndex)
 
-			if strings.EqualFold(methodType.Name, "process") {
-				continue
-			}
-
 			route := &model.RouterMap{}
 			route.Controller = methodValue
 			post, routeName := isPost(methodType.Name)
@@ -111,9 +108,9 @@ func Bootstrap(ControllerList ...model.ControllerData) {
 			}
 			route.IsPost = post
 			routerList[routeName] = *route
-			httpMethod := "get"
+			httpMethod := constFiled.Get
 			if post {
-				httpMethod = "post"
+				httpMethod = constFiled.Post
 			}
 
 			fmt.Println(httpMethod, "router:", routeName, controllerName+routeName, methodValue)
