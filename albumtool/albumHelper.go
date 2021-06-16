@@ -1,11 +1,12 @@
 package albumtool
 
 import (
+	"albumservice/albumtool/albumUtils"
 	"albumservice/framework/fileTool"
 	"albumservice/framework/redisTool"
 	"albumservice/framework/utils"
-	"albumservice/model/albumConst"
 	"albumservice/model"
+	"albumservice/model/albumConst"
 	"encoding/json"
 	"fmt"
 	"path"
@@ -81,7 +82,7 @@ func (albumHelper *AlbumHelper) BuildPicForAlbum(album *model.Album) {
 	p := make(map[string]int)
 	for _, pic := range fileList {
 		if fileTool.IsPic(pic) {
-			name := getPicName(pic)
+			name := albumUtils.GetPicName(pic)
 			if _, ok := p[name]; !ok {
 				p[name] = 1
 			}
@@ -90,13 +91,7 @@ func (albumHelper *AlbumHelper) BuildPicForAlbum(album *model.Album) {
 
 	picList := redisTool.GetList(Album_Picture_List_Key + album.Name)
 	for n := range p {
-		pic := model.Picture{
-			Name:     n,
-			MiniPath: path.Join(album.Path, n+albumConst.MiniExtension),
-			MaxPath:  path.Join(album.Path, n+"-max.jpg"),
-			OrgPath:  path.Join(album.Path, n+"-org.jpg"),
-			Album:    album.Name,
-		}
+		pic := albumUtils.BuildPictureModel(album, n)
 		picData, err := json.Marshal(pic)
 		if err == nil {
 			if !utils.IsExist(picList, n, true) {
@@ -136,15 +131,6 @@ func (albumHelper *AlbumHelper) BuildAlbumList(dirPath string) {
 	}
 }
 
-func getPicName(picName string) string {
-	picName = strings.ToLower(picName)
-	picName = strings.ReplaceAll(picName, "-mini", "")
-	picName = strings.ReplaceAll(picName, "-max", "")
-	picName = strings.ReplaceAll(picName, "-org", "")
-	names := strings.Split(picName, ".")
-	return names[0]
-}
-
 func (albumHelper *AlbumHelper) ExistsAlbum(albumName string) bool {
 	albumList := albumHelper.GetAlbumList()
 	b := false
@@ -176,40 +162,36 @@ func (albumHelper *AlbumHelper) EditAlbum(album model.Album) {
 }
 
 func (albumHelper *AlbumHelper) AddAlbumPicture(album *model.Album, pictureName string) {
-	pic := model.Picture{
-		Name:     pictureName,
-		MiniPath: path.Join(album.Path, pictureName+"-mini.jpg"),
-		MaxPath:  path.Join(album.Path, pictureName+"-max.jpg"),
-		OrgPath:  path.Join(album.Path, pictureName+"-org.jpg"),
-		Album:    album.Name,
-	}
+	pic := albumUtils.BuildPictureModel(album, pictureName)
 	picData, err := json.Marshal(pic)
 	if err == nil {
 		redisTool.SetList(Album_Picture_List_Key+album.Name, pictureName)
 		redisTool.SetString(Picture_Key+pictureName, string(picData))
 	}
 }
+
 func (albumHelper *AlbumHelper) DeleteAlbumPic(album *model.Album, picName string, deleteType string) {
 	///org
 	if deleteType == model.DeleteImage {
-		fileTool.DeleteFile(album.Path + "/" + picName + "-org.jpg")
-		fileTool.DeleteFile(album.Path + "/" + picName + "-max.jpg")
-		fileTool.DeleteFile(album.Path + "/" + picName + "-mini.jpg")
+		fileTool.DeleteFile(album.Path + "/" + picName + albumConst.OrgExtension)
+		fileTool.DeleteFile(album.Path + "/" + picName + albumConst.MaxExtension)
+		fileTool.DeleteFile(album.Path + "/" + picName + albumConst.MiniExtension)
 		redisTool.DeleteList(Album_Picture_List_Key+album.Name, picName)
 		redisTool.DelKey(Picture_Key + picName)
 	}
 	///max
 	if deleteType == model.DeleteAbbreviation {
 		//max
-		fileTool.DeleteFile(album.Path + "/" + picName + "-max.jpg")
+		fileTool.DeleteFile(album.Path + "/" + picName + albumConst.MaxExtension)
 		//mini
-		fileTool.DeleteFile(album.Path + "/" + picName + "-mini.jpg")
+		fileTool.DeleteFile(album.Path + "/" + picName + albumConst.MiniExtension)
 	}
 }
 
 func (albumHelper *AlbumHelper) CacheUploadImage(albumName string, pictureName string, index int, cacheData string) {
 	redisTool.SetTempCache(fmt.Sprint(Picture_Cache_Key, albumName, "_", pictureName, "_", index), cacheData)
 }
+
 func (albumHelper *AlbumHelper) BuildCacheUploadImage(albumName string, pictureName string, lastIndex int) {
 	cacheData := *new([]string)
 	cacheKey := fmt.Sprint(Picture_Cache_Key, albumName, "_", pictureName, "_")
@@ -223,7 +205,11 @@ func (albumHelper *AlbumHelper) BuildCacheUploadImage(albumName string, pictureN
 	album := albumHelper.GetAlbum(albumName)
 	pictureName = album.Name + "-" + pictureName
 	///save base64 image
-	utils.Base64ToImage(strings.Join(cacheData, ""), path.Join(album.Path, pictureName+"-org.jpg"))
+	orgPath := path.Join(album.Path, pictureName+".jpg")
+
+	utils.Base64ToImage(strings.Join(cacheData, ""), orgPath)
+
+	//utils.CompressImg(orgPath, wide uint, path.Join(album.Path, pictureName+album ))
 
 	albumHelper.AddAlbumPicture(album, pictureName)
 }

@@ -1,11 +1,11 @@
 package albumtool
 
 import (
+	"albumservice/albumtool/albumUtils"
 	"albumservice/framework/fileTool"
-	"albumservice/framework/utils"
 	"albumservice/framework/model"
-	"image"
-	"os"
+	albumModel "albumservice/model"
+	"albumservice/model/albumConst"
 	"time"
 )
 
@@ -35,30 +35,15 @@ func buildAlbum(albumName string) {
 	album := albumHelper.GetAlbum(albumName)
 
 	for _, pic := range album.PicList {
-
-		file, _ := os.Open(pic.OrgPath)
-		c, _, _ := image.DecodeConfig(file)
-		max := 0
-		if c.Width > c.Height {
-			max = c.Width
-		} else {
-			max = c.Height
-		}
-		file.Close()
-		if !fileTool.FileExists(pic.MaxPath) {
-			buildMaxPic(pic.OrgPath, pic.MaxPath, max)
-		}
-		if !fileTool.FileExists(pic.MiniPath) {
-			buildMiniPic(pic.MaxPath, pic.MiniPath, max)
-		}
+		BuildPicture(&pic)
 	}
 }
 
-func buildMaxPic(org string, max string, width int) {
-	w := uint(width)
-	utils.CompressImg(org, w, max)
-}
-func buildMiniPic(max string, mini string, width int) {
-	w := uint(width / 2)
-	utils.CompressImg(max, w, mini)
+func BuildPicture(pic *albumModel.Picture) {
+	if !fileTool.FileExists(pic.MaxPath) {
+		albumUtils.CompressPicture(pic.OrgPath, pic.MaxPath, albumConst.MaxExtension)
+	}
+	if !fileTool.FileExists(pic.MiniPath) {
+		albumUtils.CompressPicture(pic.MaxPath, pic.MiniPath, albumConst.MiniExtension)
+	}
 }
