@@ -209,7 +209,9 @@ func (albumHelper *AlbumHelper) BuildCacheUploadImage(albumName string, pictureN
 
 	utils.Base64ToImage(strings.Join(cacheData, ""), orgPath)
 
-	//utils.CompressImg(orgPath, wide uint, path.Join(album.Path, pictureName+album ))
+	orgPicture := path.Join(album.Path, pictureName+albumConst.OrgExtension)
+	///save org picture & compress
+	albumUtils.CompressPicture(orgPath, orgPicture, albumConst.OrgExtension)
 
 	albumHelper.AddAlbumPicture(album, pictureName)
 }
