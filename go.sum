@@ -2,3 +2,5 @@ github.com/go-redis/redis v6.15.9+incompatible h1:K0pv1D7EQUjfyoMql+r/jZqCLizCGK
 github.com/go-redis/redis v6.15.9+incompatible/go.mod h1:NAIEuMOZ/fxfXJIrKDQDz8wamY7mA7PouImQ2Jvg6kA=
 github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 h1:zYyBkD/k9seD2A7fsi6Oo2LfFZAehjjQMERAvZLEDnQ=
 github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646/go.mod h1:jpp1/29i3P1S/RLdc7JQKbRpFeM1dOBd8T9ki5s+AY8=
+github.com/skoo87/log4go v0.0.0-20140705101247-525b311cda93 h1:OuYzzpjkcHff865E5a1ZH0CT5Sp5wo/1/GsvCbXdokw=
+github.com/skoo87/log4go v0.0.0-20140705101247-525b311cda93/go.mod h1:rrxKT9RyQQ4a2g7KQZV/rosoypI3BcyCzsvezfRa1nY=
