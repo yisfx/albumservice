@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"runtime"
 	"strings"
 )
 
@@ -33,7 +34,7 @@ func Response404(resp http.ResponseWriter, httpMethodName string, request *http.
 	return
 }
 
-func Process(resp http.ResponseWriter, request *http.Request) {
+func getRoute(resp http.ResponseWriter, request *http.Request) (*model.RouterMap, bool) {
 	isPost := false
 	httpMethodName := constFiled.Get
 	if strings.EqualFold(request.Method, constFiled.Post) {
@@ -46,18 +47,40 @@ func Process(resp http.ResponseWriter, request *http.Request) {
 	controller, hasController := controllerMap[routeBase]
 	if !hasController {
 		Response404(resp, httpMethodName, request)
-		return
+		return nil, false
 	}
 
 	route, hasRoute := controller[urls[3]]
 
 	if !hasRoute {
 		Response404(resp, httpMethodName, request)
-		return
+		return nil, false
 	}
 
 	if isPost != route.IsPost {
 		Response404(resp, httpMethodName, request)
+		return nil, false
+	}
+	return &route, true
+}
+
+func Process(resp http.ResponseWriter, request *http.Request) {
+
+	defer func() {
+		///log
+		err := recover()
+
+		switch err.(type) {
+		case runtime.Error: // 运行时错误
+			fmt.Println("runtime error:", err)
+		default: // 非运行时错误
+			fmt.Println("error:", err)
+		}
+	}()
+
+	route, exist := getRoute(resp, request)
+
+	if !exist {
 		return
 	}
 
@@ -77,7 +100,6 @@ func Process(resp http.ResponseWriter, request *http.Request) {
 		if err != nil {
 			fmt.Println("err:", err)
 		}
-
 		resp.Write(r)
 	}
 }
