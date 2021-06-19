@@ -12,7 +12,7 @@ import (
 
 var redisdb *redis.Client
 
-func RedisConnect(prot int, password string) {
+func RedisConnect(prot int, password string) *redis.Client {
 	address := "127.0.0.1:" + strconv.Itoa(prot)
 	redisdb = redis.NewClient(&redis.Options{
 		Addr:     address,  // use default Addr
@@ -23,6 +23,7 @@ func RedisConnect(prot int, password string) {
 	//心跳
 	pong, err := redisdb.Ping().Result()
 	log.Println(pong, err) // Output: PONG <nil>
+	return redisdb
 }
 
 func testRedisBase() {
