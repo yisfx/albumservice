@@ -9,6 +9,8 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
+
+	log "github.com/skoo87/log4go"
 )
 
 func MustJSONDecode(b []byte, i interface{}) {
@@ -67,14 +69,17 @@ func getRoute(resp http.ResponseWriter, request *http.Request) (*model.RouterMap
 func Process(resp http.ResponseWriter, request *http.Request) {
 
 	defer func() {
-		///log
 		err := recover()
 
 		switch err.(type) {
-		case runtime.Error: // 运行时错误
-			fmt.Println("runtime error:", err)
-		default: // 非运行时错误
-			fmt.Println("error:", err)
+		case runtime.Error:
+			{ // 运行时错误
+				log.Error("err %s", err)
+			}
+		default:
+			{ // 非运行时错误
+				log.Error("err %s", err)
+			}
 		}
 	}()
 
