@@ -5,19 +5,30 @@ import (
 	"albumservice/controller"
 	"albumservice/framework/bootstrap"
 	"albumservice/framework/configTool"
-	"albumservice/framework/redisTool"
 	"albumservice/framework/model"
+	"albumservice/framework/redisTool"
 	"fmt"
 	"net/http"
 	"strconv"
+
+	log "github.com/skoo87/log4go"
 )
 
 func main() {
+
+	if err := log.SetupLogWithConf("./conf/logger.json"); err != nil {
+		panic(err)
+	}
+	defer log.Close()
+
 	conf := *configTool.ReadSysConf()
 	globalConf := *configTool.ReadGlobalConf((conf.GlobalConfig))
 	fmt.Println(conf, globalConf)
 
-	redisTool.RedisConnect(globalConf.Redis.Port, globalConf.Redis.Pwd)
+	redisClient := redisTool.RedisConnect(globalConf.Redis.Port, globalConf.Redis.Pwd)
+
+	defer redisClient.Close()
+
 	// framework.ExampleClient_Hash()
 	// framework.ExampleClient_Set()
 	// framework.ExampleClient_SortSet()
