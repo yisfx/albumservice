@@ -26,7 +26,10 @@ func main() {
 	fmt.Println(conf, globalConf)
 
 	redisClient := redisTool.RedisConnect(globalConf.Redis.Port, globalConf.Redis.Pwd)
-
+	if redisClient.PoolStats().TotalConns < 1 {
+		log.Error("redis connect failure")
+		return
+	}
 	defer redisClient.Close()
 
 	// framework.ExampleClient_Hash()
