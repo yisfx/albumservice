@@ -1,12 +1,12 @@
 {
-    "LogLevel" : "info",
+    "LogLevel": "info",
 
-    "FileWriter" : {
-        "LogPath" : "log-%Y-%M-%D.log",
+    "FileWriter": {
+        "LogPath": "./log/log-%Y-%M-%D.log",
         "On": true
     },
 
-    "ConsoleWriter" : {
-        "On" : true
+    "ConsoleWriter": {
+        "On": true
     }
 }
