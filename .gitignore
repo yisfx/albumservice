@@ -1,3 +1,4 @@
 *.exe
 /conf/global.config.json
 *.log
+albumservice
