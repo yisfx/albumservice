@@ -70,7 +70,9 @@ func Process(resp http.ResponseWriter, request *http.Request) {
 
 	defer func() {
 		err := recover()
-
+		if err == nil {
+			return
+		}
 		switch err.(type) {
 		case runtime.Error:
 			{ // 运行时错误
