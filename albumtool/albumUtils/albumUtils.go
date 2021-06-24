@@ -31,6 +31,7 @@ func GetPicName(picName string) string {
 }
 
 func CompressPicture(orgPath string, targetPath string, picType string) {
+	defer utils.ErrorHandler()
 	file, _ := os.Open(orgPath)
 	c, _, _ := image.DecodeConfig(file)
 	max := 0

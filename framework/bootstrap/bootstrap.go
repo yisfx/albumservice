@@ -3,14 +3,12 @@ package bootstrap
 import (
 	"albumservice/framework/constFiled"
 	"albumservice/framework/model"
+	"albumservice/framework/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"reflect"
-	"runtime"
 	"strings"
-
-	log "github.com/skoo87/log4go"
 )
 
 func MustJSONDecode(b []byte, i interface{}) {
@@ -68,22 +66,7 @@ func getRoute(resp http.ResponseWriter, request *http.Request) (*model.RouterMap
 
 func Process(resp http.ResponseWriter, request *http.Request) {
 
-	defer func() {
-		err := recover()
-		if err == nil {
-			return
-		}
-		switch err.(type) {
-		case runtime.Error:
-			{ // 运行时错误
-				log.Error("err %s", err)
-			}
-		default:
-			{ // 非运行时错误
-				log.Error("err %s", err)
-			}
-		}
-	}()
+	defer utils.ErrorHandler()
 
 	route, exist := getRoute(resp, request)
 

@@ -193,6 +193,9 @@ func (albumHelper *AlbumHelper) CacheUploadImage(albumName string, pictureName s
 }
 
 func (albumHelper *AlbumHelper) BuildCacheUploadImage(albumName string, pictureName string, lastIndex int) {
+
+	defer utils.ErrorHandler()
+
 	cacheData := *new([]string)
 	cacheKey := fmt.Sprint(Picture_Cache_Key, albumName, "_", pictureName, "_")
 	for index := 0; index <= lastIndex; index++ {
