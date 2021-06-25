@@ -22,7 +22,7 @@ func RedisConnect(prot int, password string) *redis.Client {
 
 	//心跳
 	pong, err := redisdb.Ping().Result()
-	log.Println(pong, err) // Output: PONG <nil>
+	fmt.Println("redis", pong, err) // Output: PONG <nil>
 	return redisdb
 }
 
