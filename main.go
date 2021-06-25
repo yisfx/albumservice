@@ -7,6 +7,7 @@ import (
 	"albumservice/framework/configTool"
 	"albumservice/framework/model"
 	"albumservice/framework/redisTool"
+	"albumservice/framework/utils"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -15,7 +16,7 @@ import (
 )
 
 func main() {
-
+	defer utils.ErrorHandler()
 	if err := log.SetupLogWithConf("./conf/logger.json"); err != nil {
 		panic(err)
 	}

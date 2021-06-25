@@ -11,6 +11,7 @@ import (
 )
 
 func BuildPictureModel(album *model.Album, pictureName string) *model.Picture {
+	defer utils.ErrorHandler()
 	pic := model.Picture{
 		Name:     pictureName,
 		MiniPath: path.Join(album.Path, pictureName+albumConst.MiniExtension),
@@ -22,6 +23,7 @@ func BuildPictureModel(album *model.Album, pictureName string) *model.Picture {
 }
 
 func GetPicName(picName string) string {
+	defer utils.ErrorHandler()
 	picName = strings.ToLower(picName)
 	picName = strings.ReplaceAll(picName, albumConst.MiniExtension, "")
 	picName = strings.ReplaceAll(picName, albumConst.MaxExtension, "")

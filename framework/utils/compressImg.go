@@ -15,6 +15,7 @@ import (
 )
 
 func CompressImg(source string, wide uint, newName string) error {
+	defer ErrorHandler()
 	var err error
 	var file *os.File
 	reg, _ := regexp.Compile(`^.*\.((png)|(jpg)|(JPG)|(PNG))$`)

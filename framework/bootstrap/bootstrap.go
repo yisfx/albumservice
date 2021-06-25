@@ -95,6 +95,7 @@ func Process(resp http.ResponseWriter, request *http.Request) {
 }
 
 func Bootstrap(ControllerList ...model.ControllerData) {
+	defer utils.ErrorHandler()
 	for _, curController := range ControllerList {
 
 		controller := curController.Controller

@@ -5,6 +5,7 @@ import (
 
 	"albumservice/framework/fileTool"
 	"albumservice/framework/model"
+	"albumservice/framework/utils"
 )
 
 // ReadSysConf
@@ -17,6 +18,8 @@ func ReadSysConf() *model.SysConf {
 }
 
 func ReadGlobalConf(path string) *model.GlobalConf {
+	defer utils.ErrorHandler()
+
 	conf := &model.GlobalConf{}
 	f := fileTool.GetFileContentByName(path)
 	json.Unmarshal([]byte(f), conf)

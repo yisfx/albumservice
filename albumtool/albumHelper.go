@@ -28,6 +28,7 @@ type AlbumHelper struct {
 }
 
 func (albumHelper *AlbumHelper) GetAlbumList() []model.Album {
+	defer utils.ErrorHandler()
 	albumNameList := redisTool.GetList(Album_List_Key)
 	albumList := []model.Album{}
 	for _, albumName := range albumNameList {
@@ -45,6 +46,7 @@ func (albumHelper *AlbumHelper) GetAlbumList() []model.Album {
 }
 
 func (albumHelper *AlbumHelper) GetAlbum(albumName string) *model.Album {
+	defer utils.ErrorHandler()
 	confStr := redisTool.GetString(Album_Name_Key + albumName)
 	if confStr == "" {
 		return nil
@@ -59,6 +61,7 @@ func (albumHelper *AlbumHelper) GetAlbum(albumName string) *model.Album {
 }
 
 func (thialbumHelpers *AlbumHelper) GetPicForAlbum(albumName string) []model.Picture {
+	defer utils.ErrorHandler()
 	var picList []model.Picture
 	picList = []model.Picture{}
 
@@ -75,6 +78,7 @@ func (thialbumHelpers *AlbumHelper) GetPicForAlbum(albumName string) []model.Pic
 }
 
 func (albumHelper *AlbumHelper) BuildPicForAlbum(album *model.Album) {
+	defer utils.ErrorHandler()
 	fileList := fileTool.GetFileListByPath(album.Path)
 	if fileList == nil {
 		return
@@ -102,6 +106,7 @@ func (albumHelper *AlbumHelper) BuildPicForAlbum(album *model.Album) {
 	}
 }
 func (albumHelper *AlbumHelper) BuildAlbumList(dirPath string) {
+	defer utils.ErrorHandler()
 	pathList := fileTool.GetFloderListFromPath(dirPath)
 	if pathList == nil {
 		return
@@ -132,6 +137,7 @@ func (albumHelper *AlbumHelper) BuildAlbumList(dirPath string) {
 }
 
 func (albumHelper *AlbumHelper) ExistsAlbum(albumName string) bool {
+	defer utils.ErrorHandler()
 	albumList := albumHelper.GetAlbumList()
 	b := false
 	for _, a := range albumList {
@@ -144,6 +150,7 @@ func (albumHelper *AlbumHelper) ExistsAlbum(albumName string) bool {
 }
 
 func (albumHelper *AlbumHelper) CreateAlbum(album model.Album) {
+	defer utils.ErrorHandler()
 	///create folder
 	fileTool.CreateFolder(album.Path)
 	///write AMBUM_JSON
@@ -155,6 +162,7 @@ func (albumHelper *AlbumHelper) CreateAlbum(album model.Album) {
 }
 
 func (albumHelper *AlbumHelper) EditAlbum(album model.Album) {
+	defer utils.ErrorHandler()
 	content, _ := json.Marshal(album)
 
 	fileTool.WriteFile(string(content), path.Join(album.Path, AMBUM_JSON))
@@ -162,6 +170,7 @@ func (albumHelper *AlbumHelper) EditAlbum(album model.Album) {
 }
 
 func (albumHelper *AlbumHelper) AddAlbumPicture(album *model.Album, pictureName string) {
+	defer utils.ErrorHandler()
 	pic := albumUtils.BuildPictureModel(album, pictureName)
 	picData, err := json.Marshal(pic)
 	if err == nil {
@@ -171,6 +180,7 @@ func (albumHelper *AlbumHelper) AddAlbumPicture(album *model.Album, pictureName 
 }
 
 func (albumHelper *AlbumHelper) DeleteAlbumPic(album *model.Album, picName string, deleteType string) {
+	defer utils.ErrorHandler()
 	///org
 	if deleteType == model.DeleteImage {
 		fileTool.DeleteFile(album.Path + "/" + picName + albumConst.OrgExtension)
@@ -189,6 +199,7 @@ func (albumHelper *AlbumHelper) DeleteAlbumPic(album *model.Album, picName strin
 }
 
 func (albumHelper *AlbumHelper) CacheUploadImage(albumName string, pictureName string, index int, cacheData string) {
+	defer utils.ErrorHandler()
 	redisTool.SetTempCache(fmt.Sprint(Picture_Cache_Key, albumName, "_", pictureName, "_", index), cacheData)
 }
 
