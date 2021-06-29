@@ -220,14 +220,14 @@ func (albumHelper *AlbumHelper) BuildCacheUploadImage(albumName string, pictureN
 	pictureName = album.Name + "-" + pictureName
 	///save base64 image
 	orgPath := path.Join(album.Path, pictureName+".jpg")
-
 	utils.Base64ToImage(strings.Join(cacheData, ""), orgPath)
 
 	orgPicture := path.Join(album.Path, pictureName+albumConst.OrgExtension)
 	///save org picture & compress
 	albumUtils.CompressPicture(orgPath, orgPicture, albumConst.OrgExtension)
-
 	albumHelper.AddAlbumPicture(album, pictureName)
+
+	fileTool.DeleteFile(orgPath)
 }
 
 func NewAlbumHelper() *AlbumHelper {
