@@ -64,7 +64,7 @@ func CompressImg(source string, wide uint, newName string) error {
 	return nil
 }
 
-func CompressJpgResource(orgPath string, targetPath, quality int) {
+func CompressJpgResource(orgPath string, targetPath string, quality int) {
 	///org
 	orgImg, err := os.Open("test.jpg")
 	if err != nil {
