@@ -4,8 +4,6 @@ import (
 	"albumservice/framework/utils"
 	"albumservice/model"
 	"albumservice/model/albumConst"
-	"image"
-	"os"
 	"path"
 	"strings"
 )
@@ -34,9 +32,12 @@ func GetPicName(picName string) string {
 
 func CompressPicture(orgPath string, targetPath string, picType string) {
 	quality := 100
+
+	if picType == albumConst.MaxExtension {
+		quality = 80
+	}
 	if picType == albumConst.MiniExtension {
-		quality = 30
+		quality = 50
 	}
 	utils.CompressJpgResource(orgPath, targetPath, quality)
 }
-
