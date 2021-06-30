@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"image"
@@ -65,18 +64,24 @@ func CompressImg(source string, wide uint, newName string) error {
 	return nil
 }
 
-func CompressJpgResource(data []byte) []byte {
-	img, _, err := image.Decode(bytes.NewReader(data))
+func CompressJpgResource(orgPath string, targetPath, quality int) {
+	///org
+	orgImg, err := os.Open("test.jpg")
 	if err != nil {
-		return data
+		fmt.Println(err)
 	}
-	buf := bytes.Buffer{}
-	err = jpeg.Encode(&buf, img, &jpeg.Options{Quality: 40})
+	defer orgImg.Close()
+
+	///to
+	targetImg, err := os.Create("test1.jpg")
 	if err != nil {
-		return data
+		fmt.Println(err)
 	}
-	if buf.Len() > len(data) {
-		return data
+	defer targetImg.Close()
+
+	img, err := jpeg.Decode(orgImg)
+	if err != nil {
+		fmt.Println(err)
 	}
-	return buf.Bytes()
+	jpeg.Encode(targetImg, img, &jpeg.Options{Quality: quality})
 }
