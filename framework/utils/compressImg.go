@@ -66,14 +66,14 @@ func CompressImg(source string, wide uint, newName string) error {
 
 func CompressJpgResource(orgPath string, targetPath string, quality int) {
 	///org
-	orgImg, err := os.Open("test.jpg")
+	orgImg, err := os.Open(orgPath)
 	if err != nil {
 		fmt.Println(err)
 	}
 	defer orgImg.Close()
 
 	///to
-	targetImg, err := os.Create("test1.jpg")
+	targetImg, err := os.Create(targetPath)
 	if err != nil {
 		fmt.Println(err)
 	}
