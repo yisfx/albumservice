@@ -33,19 +33,10 @@ func GetPicName(picName string) string {
 }
 
 func CompressPicture(orgPath string, targetPath string, picType string) {
-	defer utils.ErrorHandler()
-	file, _ := os.Open(orgPath)
-	c, _, _ := image.DecodeConfig(file)
-	max := 0
-	if c.Width > c.Height {
-		max = c.Width
-	} else {
-		max = c.Height
-	}
-	file.Close()
+	quality := 100
 	if picType == albumConst.MiniExtension {
-		max = max / 2
+		quality = 30
 	}
-	w := uint(max)
-	utils.CompressImg(orgPath, w, targetPath)
+	utils.CompressJpgResource(orgPath, targetPath, quality)
 }
+
