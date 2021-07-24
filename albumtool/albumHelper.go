@@ -179,6 +179,15 @@ func (albumHelper *AlbumHelper) AddAlbumPicture(album *model.Album, pictureName 
 	}
 }
 
+func (AlbumHelper *AlbumHelper) DeleteAlbum(album *model.Album) {
+	redisTool.DeleteList(Album_List_Key, album.Name)
+	redisTool.DelKey(Album_Name_Key + album.Name)
+	fmt.Println("delete json")
+	fileTool.DeleteFile(path.Join(album.Path, AMBUM_JSON))
+	fmt.Println("delete folder")
+	fileTool.DeleteFolder(album.Path)
+}
+
 func (albumHelper *AlbumHelper) DeleteAlbumPic(album *model.Album, picName string, deleteType string) {
 	defer utils.ErrorHandler()
 	///org

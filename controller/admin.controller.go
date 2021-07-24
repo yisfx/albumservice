@@ -7,6 +7,7 @@ import (
 	"albumservice/albumtool"
 	"albumservice/framework/model"
 	"albumservice/framework/utils"
+	m "albumservice/model"
 	"albumservice/model/request"
 	"albumservice/model/response"
 )
@@ -96,6 +97,19 @@ func (controller *AlbumManage) Post_BuildAlbumImage(r *request.GetAlbumPicListRe
 		result.Result = false
 		result.ErrorMessage = "hasn't this Album"
 	}
+	return result
+}
+
+func (controller *AlbumManage) Post_DeleteAlbum(r *request.DeleteAlbumRequest) *response.BaseResponse {
+	defer utils.ErrorHandler()
+	albumHelper := albumtool.NewAlbumHelper()
+	result := new(response.BaseResponse)
+	album := albumHelper.GetAlbum(r.AlbumName)
+	for _, pic := range album.PicList {
+		albumHelper.DeleteAlbumPic(album, pic.Name, m.DeleteImage)
+	}
+	albumHelper.DeleteAlbum(album)
+	result.Result = true
 	return result
 }
 

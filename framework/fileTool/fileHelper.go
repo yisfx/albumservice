@@ -56,6 +56,9 @@ func GetFileContentByName(name string) string {
 func CreateFolder(dirPath string) {
 	os.Mkdir(dirPath, os.ModePerm)
 }
+func DeleteFolder(dirPath string) {
+	os.RemoveAll(dirPath)
+}
 
 func WriteFile(content string, fileName string) {
 

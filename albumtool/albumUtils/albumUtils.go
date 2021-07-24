@@ -34,10 +34,10 @@ func CompressPicture(orgPath string, targetPath string, picType string) {
 	quality := 100
 
 	if picType == albumConst.MaxExtension {
-		quality = 80
+		quality = 50
 	}
 	if picType == albumConst.MiniExtension {
-		quality = 50
+		quality = 25
 	}
 	utils.CompressJpgResource(orgPath, targetPath, quality)
 }
