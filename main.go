@@ -49,7 +49,7 @@ func main() {
 	)
 
 	http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
-		response.Write([]byte("hello world"))
+		response.Write([]byte("hello world1"))
 	})
 	port := "0.0.0.0:" + strconv.Itoa(conf.Port)
 	fmt.Println("listen at " + port)

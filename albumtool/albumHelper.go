@@ -22,15 +22,17 @@ const (
 	Picture_Key = "picture_" //string picture_IMG_20210505_115601
 
 	Picture_Cache_Key = "picture_Cache_" // string picture_Cache_aaa_IMG_20210505_115601_index
+
+	All_Years = "all_years"
 )
 
 type AlbumHelper struct {
 }
 
-func (albumHelper *AlbumHelper) GetAlbumList() []model.Album {
+func (albumHelper *AlbumHelper) GetAlbumList() []*model.Album {
 	defer utils.ErrorHandler()
 	albumNameList := redisTool.GetList(Album_List_Key)
-	albumList := []model.Album{}
+	albumList := []*model.Album{}
 	for _, albumName := range albumNameList {
 		confStr := redisTool.GetString(Album_Name_Key + albumName)
 		if confStr == "" {
@@ -39,7 +41,7 @@ func (albumHelper *AlbumHelper) GetAlbumList() []model.Album {
 		albumConf := &model.Album{}
 		json.Unmarshal([]byte(confStr), albumConf)
 		if albumConf != nil {
-			albumList = append(albumList, *albumConf)
+			albumList = append(albumList, albumConf)
 		}
 	}
 	return albumList
@@ -237,6 +239,27 @@ func (albumHelper *AlbumHelper) BuildCacheUploadImage(albumName string, pictureN
 	albumHelper.AddAlbumPicture(album, pictureName)
 
 	fileTool.DeleteFile(orgPath)
+}
+
+func (albumHelper *AlbumHelper) GetAllYears() []string {
+	defer utils.ErrorHandler()
+	var rrr = redisTool.GetList(All_Years)
+	return rrr
+}
+func (albumHeler *AlbumHelper) BuildAllYears() {
+	albumList := albumHeler.GetAlbumList()
+	yearList := map[string]*model.Album{}
+	for _, album := range albumList {
+		date := &utils.Date{}
+		err := date.Parse(album.Date)
+		if err == nil {
+			yearList[fmt.Sprint(date.Year)] = album
+		}
+	}
+	redisTool.DelKey(All_Years)
+	for year := range yearList {
+		redisTool.SetList(All_Years, year)
+	}
 }
 
 func NewAlbumHelper() *AlbumHelper {

@@ -2,7 +2,10 @@ package utils
 
 import (
 	"fmt"
+	"image"
+	"image/draw"
 	"image/jpeg"
+	"image/png"
 	"os"
 )
 
@@ -28,7 +31,7 @@ func CompressJpgResource(orgPath string, targetPath string, quality int) {
 	}
 	jpeg.Encode(targetImg, img, &jpeg.Options{Quality: quality})
 }
-func WaterMark(orgPath string, targetPath string){
+func WaterMark(orgPath string, targetPath string) {
 
 	imgb, _ := os.Open("ying.jpg")
 	img, _ := jpeg.Decode(imgb)

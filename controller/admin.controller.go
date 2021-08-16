@@ -144,12 +144,30 @@ func (controller *AlbumManage) Post_BuildAllAlbum() *response.BaseResponse {
 	return &result
 }
 
+func (controller *AlbumManage) Post_GetAllYears() *response.GetAllYearsResponse {
+	defer utils.ErrorHandler()
+	albumHelper := &albumtool.AlbumHelper{}
+	result := &response.GetAllYearsResponse{}
+	result.AllYears = albumHelper.GetAllYears()
+	result.Result = true
+	return result
+}
+
+func (controller *AlbumManage) Post_BuildAllYears() *response.BaseResponse {
+	defer utils.ErrorHandler()
+	albumHelper := &albumtool.AlbumHelper{}
+	albumHelper.BuildAllYears()
+	result := &response.BaseResponse{}
+	result.Result = true
+	return result
+}
+
 func (controller *AlbumManage) Post_BuildPicForAlbum() *response.BaseResponse {
 	defer utils.ErrorHandler()
 	albumHelper := albumtool.NewAlbumHelper()
 	albumList := albumHelper.GetAlbumList()
 	for _, album := range albumList {
-		albumHelper.BuildPicForAlbum(&album)
+		albumHelper.BuildPicForAlbum(album)
 	}
 	result := new(response.BaseResponse)
 	result.Result = true

@@ -6,7 +6,7 @@ import (
 
 type AlbumListResponse struct {
 	BaseResponse
-	AlbumList []model.Album
+	AlbumList []*model.Album
 }
 type GetAlbumPicListResponse struct {
 	BaseResponse
