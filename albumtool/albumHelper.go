@@ -24,6 +24,8 @@ const (
 	Picture_Cache_Key = "picture_Cache_" // string picture_Cache_aaa_IMG_20210505_115601_index
 
 	All_Years = "all_years"
+
+	Year_Album_List_Key = "year_album_lsit_" //string  year_album_lsit_2021
 )
 
 type AlbumHelper struct {
@@ -265,22 +267,34 @@ func (albumHelper *AlbumHelper) GetAllYears() []string {
 // BuildAllYears buildAllYears
 func (albumHeler *AlbumHelper) BuildAllYears() {
 	albumList := albumHeler.GetAlbumList()
-	yearList := map[string]*model.Album{}
+	yearList := map[string][]*model.Album{}
 	for _, album := range albumList {
 		date := &utils.Date{}
 		err := date.Parse(album.Date)
 		if err == nil {
-			yearList[fmt.Sprint(date.Year)] = album
+			yearList[fmt.Sprint(date.Year)] = append(yearList[fmt.Sprint(date.Year)], album)
 		}
 	}
+
 	redisTool.DelKey(All_Years)
-	for year := range yearList {
+
+	for year, al := range yearList {
 		redisTool.SetList(All_Years, year)
+		redisTool.DelKey(Year_Album_List_Key + year)
+		for _, a := range al {
+			redisTool.SetList(Year_Album_List_Key+year, a.Name)
+		}
 	}
 }
 
-func (albumHeler *AlbumHelper) GetAlbumListByYear(year string) {
-
+// GetAlbumListByYear 根据年获取albumList
+func (albumHeler *AlbumHelper) GetAlbumListByYear(year string) []*model.Album {
+	albumNameList := redisTool.GetList(Year_Album_List_Key + year)
+	result := []*model.Album{}
+	for _, albumName := range albumNameList {
+		result = append(result, albumHeler.GetAlbum(albumName))
+	}
+	return result
 }
 
 func NewAlbumHelper() *AlbumHelper {
