@@ -138,7 +138,7 @@ func (controller *AlbumManage) Post_BuildAllAlbum() *response.BaseResponse {
 	return &result
 }
 
-func (controller *AlbumManage) Get_GetAllYears() *response.GetAllYearsResponse {
+func (controller *AlbumManage) Post_GetAllYears() *response.GetAllYearsResponse {
 	defer utils.ErrorHandler()
 	result := &response.GetAllYearsResponse{}
 	result.AllYears = controller.albumHelper.GetAllYears()
@@ -146,7 +146,7 @@ func (controller *AlbumManage) Get_GetAllYears() *response.GetAllYearsResponse {
 	return result
 }
 
-func (controller *AlbumManage) Get_BuildAllYears() *response.BaseResponse {
+func (controller *AlbumManage) Post_BuildAllYears() *response.BaseResponse {
 	defer utils.ErrorHandler()
 	controller.albumHelper.BuildAllYears()
 	result := &response.BaseResponse{}
