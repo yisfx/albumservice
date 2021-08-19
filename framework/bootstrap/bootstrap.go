@@ -66,7 +66,7 @@ func getRoute(resp http.ResponseWriter, request *http.Request) (*model.RouterMap
 
 func Process(resp http.ResponseWriter, request *http.Request) {
 
-	defer utils.ErrorHandler()
+	defer utils.HanderError("Process")
 
 	route, exist := getRoute(resp, request)
 

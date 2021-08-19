@@ -7,7 +7,7 @@ import (
 	log "github.com/skoo87/log4go"
 )
 
-func ErrorHandler() {
+func HanderError(funcName string) {
 	err := recover()
 	if err == nil {
 		return
@@ -15,13 +15,17 @@ func ErrorHandler() {
 	switch err.(type) {
 	case runtime.Error:
 		{ // 运行时错误
-			fmt.Println("err %s", err)
-			log.Error("err %s", err)
+			fmt.Println(fmt.Sprintf("%s: %s", funcName, err))
+			log.Error(fmt.Sprintf("%s: %s", funcName, err))
 		}
 	default:
 		{ // 非运行时错误
-			fmt.Println("err %s", err)
-			log.Error("err %s", err)
+			fmt.Println(fmt.Sprintf("%s: %s", funcName, err))
+			log.Error(fmt.Sprintf("%s: %s", funcName, err))
 		}
 	}
+}
+
+func ErrorHandler() {
+	HanderError("old")
 }
