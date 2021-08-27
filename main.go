@@ -22,13 +22,13 @@ func main() {
 	}
 	defer log.Close()
 
-	conf := *configTool.ReadSysConf()
-	globalConf := *configTool.ReadGlobalConf((conf.GlobalConfig))
+	conf := configTool.ReadSysConf()
+	globalConf := configTool.ReadGlobalConf((conf.GlobalConfig))
 	fmt.Println("global config:", conf, globalConf)
-	fmt.Println("***************************")
-	utils.DesDemo()
-	fmt.Println("***************************")
-	return
+	// fmt.Println("***************************")
+	// utils.DesDemo()
+	// fmt.Println("***************************")
+	// return
 	redisClient := redisTool.RedisConnect(globalConf.Redis.Port, globalConf.Redis.Pwd)
 	if redisClient.PoolStats().TotalConns < 1 {
 		log.Error("redis connect failure")
@@ -36,7 +36,9 @@ func main() {
 	}
 	defer redisClient.Close()
 
-	manageController := controller.NewAlbumManageController(conf, globalConf)
+	bootstrap.SetConfig(conf, globalConf)
+
+	manageController := controller.NewAlbumManageController()
 
 	bootstrap.Bootstrap(
 		*model.NewControllerData("Manage", &manageController),

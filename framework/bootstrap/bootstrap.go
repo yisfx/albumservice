@@ -1,6 +1,7 @@
 package bootstrap
 
 import (
+	"albumservice/albumtool"
 	"albumservice/framework/constFiled"
 	"albumservice/framework/model"
 	"albumservice/framework/utils"
@@ -10,6 +11,14 @@ import (
 	"reflect"
 	"strings"
 )
+
+var SysConfig, GlobalConf, albumHelper reflect.Value
+
+func SetConfig(SysConfigModel *model.SysConf, GlobalConfModel *model.GlobalConf) {
+	SysConfig = reflect.ValueOf(SysConfigModel)
+	GlobalConf = reflect.ValueOf(GlobalConfModel)
+	albumHelper = reflect.ValueOf(&albumtool.AlbumHelper{})
+}
 
 func MustJSONDecode(b []byte, i interface{}) {
 	err := json.Unmarshal(b, i)
@@ -25,7 +34,7 @@ func isPost(name string) (bool, string) {
 	return false, name
 }
 
-var controllerMap = map[string]map[string]model.RouterMap{}
+var ControllerRouterMap = map[string]*ControllerRouteType{}
 
 func Response404(resp http.ResponseWriter, httpMethodName string, request *http.Request) {
 	fmt.Println("404 :", httpMethodName, request.URL.Path)
@@ -34,7 +43,7 @@ func Response404(resp http.ResponseWriter, httpMethodName string, request *http.
 	return
 }
 
-func getRoute(resp http.ResponseWriter, request *http.Request) (*model.RouterMap, bool) {
+func getRoute(resp http.ResponseWriter, request *http.Request) (*reflect.Value, *RouterCell, bool) {
 	isPost := false
 	httpMethodName := constFiled.Get
 	if strings.EqualFold(request.Method, constFiled.Post) {
@@ -44,44 +53,58 @@ func getRoute(resp http.ResponseWriter, request *http.Request) (*model.RouterMap
 	urls := strings.Split(request.URL.Path, "/")
 	routeBase := urls[2]
 
-	controller, hasController := controllerMap[routeBase]
+	controller, hasController := ControllerRouterMap[routeBase]
 	if !hasController {
 		Response404(resp, httpMethodName, request)
-		return nil, false
+		return nil, nil, false
 	}
 
-	route, hasRoute := controller[urls[3]]
+	routeCell, hasRoute := controller.RouteFunc[urls[3]]
 
 	if !hasRoute {
 		Response404(resp, httpMethodName, request)
-		return nil, false
+		return nil, nil, false
 	}
 
-	if isPost != route.IsPost {
+	if isPost != routeCell.IsPost {
 		Response404(resp, httpMethodName, request)
-		return nil, false
+		return nil, nil, false
 	}
-	return &route, true
+
+	//new controller
+	controllerVale := reflect.New(controller.ControllerType)
+	///set controller field
+	// SysConfig  model.SysConf
+	// GlobalConf model.GlobalConf
+	// albumHelper *albumtool.AlbumHelper
+	valueElem := controllerVale.Elem()
+	valueElem.FieldByName("SysConfig").Set(SysConfig)
+	valueElem.FieldByName("GlobalConf").Set(GlobalConf)
+	valueElem.FieldByName("albumHelper").Set(albumHelper)
+
+	routeMethod := controllerVale.MethodByName(urls[3]).Elem()
+
+	return &routeMethod, routeCell, true
 }
 
 func Process(resp http.ResponseWriter, request *http.Request) {
 
 	defer utils.HanderError("Process")
 
-	route, exist := getRoute(resp, request)
+	routerMethod, routerCell, exist := getRoute(resp, request)
 
 	if !exist {
 		return
 	}
 
 	var result []reflect.Value
-	if route.ArgType == nil {
-		result = route.Controller.Call(nil)
+	if routerCell.ArgType == nil {
+		result = routerMethod.Call(nil)
 	} else {
-		a := reflect.New(route.ArgType).Interface()
+		a := reflect.New(routerCell.ArgType).Interface()
 		MustJSONDecode(ReadBody(request.Body), a)
 		args := []reflect.Value{reflect.ValueOf(a)}
-		result = route.Controller.Call(args)
+		result = routerMethod.Call(args)
 	}
 	if result == nil {
 		resp.Write(([]byte)("are you ok?"))
@@ -98,20 +121,21 @@ func Bootstrap(ControllerList ...model.ControllerData) {
 	defer utils.ErrorHandler()
 	for _, curController := range ControllerList {
 
-		controller := curController.Controller
-
 		controllerName := curController.ControllerName
 
-		routerList := map[string]model.RouterMap{}
-		controllerValue := reflect.ValueOf(controller).Elem().Elem()
-		controllerType := reflect.TypeOf(*controller)
+		routerList := &ControllerRouteType{}
+		routerList.RouteFunc = map[string]*RouterCell{}
+		routerList.ControllerType = curController.ControllerType
+
+		var controllerValue reflect.Value = reflect.New(curController.ControllerType)
+		controllerType := curController.ControllerType
 		for methodIndex := 0; methodIndex < controllerValue.NumMethod(); methodIndex++ {
+
+			route := &RouterCell{}
 
 			methodType := controllerType.Method(methodIndex)
 			methodValue := controllerValue.Method(methodIndex)
 
-			route := &model.RouterMap{}
-			route.Controller = methodValue
 			post, routeName := isPost(methodType.Name)
 
 			if methodValue.Type().NumIn() > 0 {
@@ -120,18 +144,16 @@ func Bootstrap(ControllerList ...model.ControllerData) {
 				route.ArgType = nil
 			}
 			route.IsPost = post
-			routerList[routeName] = *route
+
+			routerList.RouteFunc[routeName] = route
 			httpMethod := constFiled.Get
 			if post {
 				httpMethod = constFiled.Post
 			}
-
 			fmt.Println(httpMethod, "router:", routeName, controllerName+routeName, methodValue)
 		}
-		v := controllerValue.Elem()
-		routeField := v.FieldByName("RouterList")
-		routeField.Set(reflect.ValueOf(routerList))
-		controllerMap[controllerName] = routerList
+
+		ControllerRouterMap[controllerName] = routerList
 	}
 	http.HandleFunc("/api/", Process)
 }
