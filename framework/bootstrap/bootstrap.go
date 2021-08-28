@@ -44,6 +44,7 @@ func Response404(resp http.ResponseWriter, httpMethodName string, request *http.
 }
 
 func getRoute(resp http.ResponseWriter, request *http.Request) (*reflect.Value, *RouterCell, bool) {
+	defer utils.HanderError("getRoute")
 	isPost := false
 	httpMethodName := constFiled.Get
 	if strings.EqualFold(request.Method, constFiled.Post) {
@@ -72,17 +73,17 @@ func getRoute(resp http.ResponseWriter, request *http.Request) (*reflect.Value, 
 	}
 
 	//new controller
-	controllerVale := reflect.New(controller.ControllerType)
+	controllerVale := reflect.New(controller.ControllerType.Elem())
+	controllerVale.Elem().FieldByName("SysConfig").Set(SysConfig)
+	controllerVale.Elem().FieldByName("GlobalConf").Set(GlobalConf)
+	controllerVale.Elem().FieldByName("AlbumHelper").Set(albumHelper)
+
 	///set controller field
 	// SysConfig  model.SysConf
 	// GlobalConf model.GlobalConf
 	// albumHelper *albumtool.AlbumHelper
-	valueElem := controllerVale.Elem()
-	valueElem.FieldByName("SysConfig").Set(SysConfig)
-	valueElem.FieldByName("GlobalConf").Set(GlobalConf)
-	valueElem.FieldByName("albumHelper").Set(albumHelper)
 
-	routeMethod := controllerVale.MethodByName(urls[3]).Elem()
+	routeMethod := controllerVale.MethodByName(httpMethodName + "_" + urls[3])
 
 	return &routeMethod, routeCell, true
 }
@@ -127,8 +128,9 @@ func Bootstrap(ControllerList ...model.ControllerData) {
 		routerList.RouteFunc = map[string]*RouterCell{}
 		routerList.ControllerType = curController.ControllerType
 
-		var controllerValue reflect.Value = reflect.New(curController.ControllerType)
+		var controllerValue reflect.Value = reflect.New(curController.ControllerType).Elem()
 		controllerType := curController.ControllerType
+		fmt.Println(controllerName, " methods:", controllerValue.NumMethod())
 		for methodIndex := 0; methodIndex < controllerValue.NumMethod(); methodIndex++ {
 
 			route := &RouterCell{}
@@ -150,7 +152,7 @@ func Bootstrap(ControllerList ...model.ControllerData) {
 			if post {
 				httpMethod = constFiled.Post
 			}
-			fmt.Println(httpMethod, "router:", routeName, controllerName+routeName, methodValue)
+			fmt.Println(httpMethod, "router:", routeName, controllerName+"/"+routeName, methodValue)
 		}
 
 		ControllerRouterMap[controllerName] = routerList
