@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"net/http"
 	"path"
 	"strings"
 
@@ -13,10 +14,13 @@ import (
 )
 
 type AlbumManage struct {
-	SysConfig  *model.SysConf
-	GlobalConf *model.GlobalConf
+	SysConfig  model.SysConf
+	GlobalConf model.GlobalConf
 	model.BaseController
-	AlbumHelper *albumtool.AlbumHelper
+	AlbumHelper albumtool.AlbumHelper
+	Request     *http.Request
+
+	IsLogin *bool
 }
 
 func NewAlbumManageController() model.BaseController {

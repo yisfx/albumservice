@@ -8,6 +8,7 @@ import (
 	"albumservice/framework/model"
 	"albumservice/framework/redisTool"
 	"albumservice/framework/utils"
+	"albumservice/interceptor"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -36,7 +37,9 @@ func main() {
 	}
 	defer redisClient.Close()
 
-	bootstrap.SetConfig(conf, globalConf)
+	bootstrap.SetConfig(*conf, *globalConf)
+
+	bootstrap.AddInterceptor(interceptor.NewLoginInterceptor())
 
 	manageController := controller.NewAlbumManageController()
 

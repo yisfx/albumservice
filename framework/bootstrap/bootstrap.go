@@ -5,25 +5,27 @@ import (
 	"albumservice/framework/constFiled"
 	"albumservice/framework/model"
 	"albumservice/framework/utils"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"reflect"
 	"strings"
 )
 
-var SysConfig, GlobalConf, albumHelper reflect.Value
+var controllerFieldMap map[string]interface{} = make(map[string]interface{})
 
-func SetConfig(SysConfigModel *model.SysConf, GlobalConfModel *model.GlobalConf) {
-	SysConfig = reflect.ValueOf(SysConfigModel)
-	GlobalConf = reflect.ValueOf(GlobalConfModel)
-	albumHelper = reflect.ValueOf(&albumtool.AlbumHelper{})
+func SetConfig(sysConfig model.SysConf, globalConfig model.GlobalConf) {
+	field := map[string]interface{}{}
+	field["SysConfig"] = sysConfig
+	field["GlobalConf"] = globalConfig
+	field["AlbumHelper"] = albumtool.AlbumHelper{}
+	SetControllerFiled(field)
 }
 
-func MustJSONDecode(b []byte, i interface{}) {
-	err := json.Unmarshal(b, i)
-	if err != nil {
-		panic(err)
+func SetControllerFiled(fieldMap map[string]interface{}) {
+	for fn, _ := range fieldMap {
+		fv := fieldMap[fn]
+		controllerFieldMap[fn] = fv
+		fmt.Println("inject field:", fn)
 	}
 }
 
@@ -36,90 +38,9 @@ func isPost(name string) (bool, string) {
 
 var ControllerRouterMap = map[string]*ControllerRouteType{}
 
-func Response404(resp http.ResponseWriter, httpMethodName string, request *http.Request) {
-	fmt.Println("404 :", httpMethodName, request.URL.Path)
-	resss, _ := json.Marshal(fmt.Sprint("404:     ", httpMethodName, ":", request.URL.Path))
-	resp.Write(resss)
-	return
-}
-
-func getRoute(resp http.ResponseWriter, request *http.Request) (*reflect.Value, *RouterCell, bool) {
-	defer utils.HanderError("getRoute")
-	isPost := false
-	httpMethodName := constFiled.Get
-	if strings.EqualFold(request.Method, constFiled.Post) {
-		isPost = true
-		httpMethodName = constFiled.Post
-	}
-	urls := strings.Split(request.URL.Path, "/")
-	routeBase := urls[2]
-
-	controller, hasController := ControllerRouterMap[routeBase]
-	if !hasController {
-		Response404(resp, httpMethodName, request)
-		return nil, nil, false
-	}
-
-	routeCell, hasRoute := controller.RouteFunc[urls[3]]
-
-	if !hasRoute {
-		Response404(resp, httpMethodName, request)
-		return nil, nil, false
-	}
-
-	if isPost != routeCell.IsPost {
-		Response404(resp, httpMethodName, request)
-		return nil, nil, false
-	}
-
-	//new controller
-	controllerVale := reflect.New(controller.ControllerType.Elem())
-	controllerVale.Elem().FieldByName("SysConfig").Set(SysConfig)
-	controllerVale.Elem().FieldByName("GlobalConf").Set(GlobalConf)
-	controllerVale.Elem().FieldByName("AlbumHelper").Set(albumHelper)
-
-	///set controller field
-	// SysConfig  model.SysConf
-	// GlobalConf model.GlobalConf
-	// albumHelper *albumtool.AlbumHelper
-
-	routeMethod := controllerVale.MethodByName(httpMethodName + "_" + urls[3])
-
-	return &routeMethod, routeCell, true
-}
-
-func Process(resp http.ResponseWriter, request *http.Request) {
-
-	defer utils.HanderError("Process")
-
-	routerMethod, routerCell, exist := getRoute(resp, request)
-
-	if !exist {
-		return
-	}
-
-	var result []reflect.Value
-	if routerCell.ArgType == nil {
-		result = routerMethod.Call(nil)
-	} else {
-		a := reflect.New(routerCell.ArgType).Interface()
-		MustJSONDecode(ReadBody(request.Body), a)
-		args := []reflect.Value{reflect.ValueOf(a)}
-		result = routerMethod.Call(args)
-	}
-	if result == nil {
-		resp.Write(([]byte)("are you ok?"))
-	} else {
-		r, err := json.Marshal(result[0].Interface())
-		if err != nil {
-			fmt.Println("err:", err)
-		}
-		resp.Write(r)
-	}
-}
-
 func Bootstrap(ControllerList ...model.ControllerData) {
 	defer utils.ErrorHandler()
+	fmt.Println("***************************************************")
 	for _, curController := range ControllerList {
 
 		controllerName := curController.ControllerName
@@ -130,7 +51,7 @@ func Bootstrap(ControllerList ...model.ControllerData) {
 
 		var controllerValue reflect.Value = reflect.New(curController.ControllerType).Elem()
 		controllerType := curController.ControllerType
-		fmt.Println(controllerName, " methods:", controllerValue.NumMethod())
+		fmt.Println("controller :", controllerName, ", methods:", controllerValue.NumMethod())
 		for methodIndex := 0; methodIndex < controllerValue.NumMethod(); methodIndex++ {
 
 			route := &RouterCell{}
@@ -157,5 +78,6 @@ func Bootstrap(ControllerList ...model.ControllerData) {
 
 		ControllerRouterMap[controllerName] = routerList
 	}
+	fmt.Println("***************************************************")
 	http.HandleFunc("/api/", Process)
 }

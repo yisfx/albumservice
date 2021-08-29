@@ -4,15 +4,16 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Date struct {
-	Year   int
-	Month  int
-	Day    int
-	Hour   int
-	Min    int
-	Second int
+	Year   int `json:"y"`
+	Month  int `json:"m"`
+	Day    int `json:"d"`
+	Hour   int `json:"h"`
+	Min    int `json:"min"`
+	Second int `json:"s"`
 }
 
 func (this *Date) ToString() string {
@@ -75,4 +76,15 @@ func (this *Date) Parse(str string) error {
 	}
 	return nil
 
+}
+func Now() *Date {
+	t := time.Now()
+	return &Date{
+		Year:   t.Year(),
+		Month:  int(t.Month()),
+		Day:    t.Day(),
+		Hour:   t.Hour(),
+		Min:    t.Minute(),
+		Second: t.Second(),
+	}
 }
