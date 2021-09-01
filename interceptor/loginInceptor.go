@@ -9,8 +9,8 @@ import (
 type LoginInterceptor struct {
 }
 
-func NewLoginInterceptor() *LoginInterceptor {
-	return &LoginInterceptor{}
+func NewLoginInterceptor() LoginInterceptor {
+	return LoginInterceptor{}
 }
 
 func (lp LoginInterceptor) Interfaceptor(request *http.Request, controller *reflect.Value) bool {

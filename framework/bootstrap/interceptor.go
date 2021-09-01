@@ -11,6 +11,8 @@ type FXInterceptor interface {
 	Interfaceptor(request *http.Request, controller *reflect.Value) bool
 }
 
-func AddInterceptor(interceptor ...*FXInterceptor) {
-	interceptorList = append(interceptorList, interceptor...)
+func AddInterceptor(interceptor ...FXInterceptor) {
+	for _, i := range interceptor {
+		interceptorList = append(interceptorList, &i)
+	}
 }
