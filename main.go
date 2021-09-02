@@ -5,8 +5,6 @@ import (
 	"albumservice/controller"
 	"albumservice/framework/bootstrap"
 	"albumservice/framework/configTool"
-	"albumservice/framework/model"
-	"albumservice/framework/redisTool"
 	"albumservice/framework/utils"
 	"albumservice/interceptor"
 	"fmt"
@@ -30,21 +28,23 @@ func main() {
 	// utils.DesDemo()
 	// fmt.Println("***************************")
 	// return
-	redisClient := redisTool.RedisConnect(globalConf.Redis.Port, globalConf.Redis.Pwd)
-	if redisClient.PoolStats().TotalConns < 1 {
-		log.Error("redis connect failure")
-		return
-	}
-	defer redisClient.Close()
+
+	// redisClient := redisTool.RedisConnect(globalConf.Redis.Port, globalConf.Redis.Pwd)
+	// if redisClient.PoolStats().TotalConns < 1 {
+	// 	log.Error("redis connect failure")
+	// 	return
+	// }
+	// defer redisClient.Close()
 
 	bootstrap.SetConfig(*conf, *globalConf)
 
-	bootstrap.AddInterceptor(interceptor.NewLoginInterceptor())
+	bootstrap.AddInterceptor(interceptor.NewDemoInterceptor())
 
 	manageController := controller.NewAlbumManageController()
-
+	loginController := controller.NewLoginController()
 	bootstrap.Bootstrap(
-		*model.NewControllerData("Manage", &manageController),
+		*bootstrap.NewControllerData("Manage", manageController),
+		*bootstrap.NewControllerData("Login", loginController),
 	)
 
 	http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {

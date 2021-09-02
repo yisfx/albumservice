@@ -31,13 +31,23 @@ func Process(resp http.ResponseWriter, request *http.Request) {
 		}
 	}
 
+	///filter
+	for _, filter := range routerCell.FilterList {
+		if !filter(request) {
+			Response415(resp, routerCell.HttpMethod(), request)
+			return
+		}
+	}
+
 	var result []reflect.Value
 	if routerCell.ArgType == nil {
 		result = routerMethod.Call(nil)
 	} else {
 		a := reflect.New(routerCell.ArgType).Interface()
 		MustJSONDecode(ReadBody(request.Body), a)
+		fmt.Println("this 0")
 		args := []reflect.Value{reflect.ValueOf(a)}
+		fmt.Println("this 1", routerMethod)
 		result = routerMethod.Call(args)
 	}
 	if result == nil {
@@ -54,6 +64,7 @@ func Process(resp http.ResponseWriter, request *http.Request) {
 func MustJSONDecode(b []byte, i interface{}) {
 	err := json.Unmarshal(b, i)
 	if err != nil {
+		fmt.Println("MustJSONDecode error", string(b))
 		panic(err)
 	}
 }

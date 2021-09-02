@@ -11,8 +11,9 @@ type ControllerRouteType struct {
 }
 
 type RouterCell struct {
-	ArgType reflect.Type
-	IsPost  bool
+	ArgType    reflect.Type
+	IsPost     bool
+	FilterList FilterFuncList
 }
 
 func (r RouterCell) HttpMethod() string {

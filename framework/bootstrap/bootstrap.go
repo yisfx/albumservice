@@ -1,9 +1,7 @@
 package bootstrap
 
 import (
-	"albumservice/albumtool"
 	"albumservice/framework/constFiled"
-	"albumservice/framework/model"
 	"albumservice/framework/utils"
 	"fmt"
 	"net/http"
@@ -11,34 +9,16 @@ import (
 	"strings"
 )
 
-var controllerFieldMap map[string]interface{} = make(map[string]interface{})
-
-func SetConfig(sysConfig model.SysConf, globalConfig model.GlobalConf) {
-	field := map[string]interface{}{}
-	field["SysConfig"] = sysConfig
-	field["GlobalConf"] = globalConfig
-	field["AlbumHelper"] = albumtool.AlbumHelper{}
-	SetControllerFiled(field)
-}
-
-func SetControllerFiled(fieldMap map[string]interface{}) {
-	for fn, _ := range fieldMap {
-		fv := fieldMap[fn]
-		controllerFieldMap[fn] = fv
-		fmt.Println("inject field:", fn)
-	}
-}
-
-func isPost(name string) (bool, string) {
+func isPost(name string) (bool, string, bool) {
 	if l := strings.Split(name, "_"); len(l) == 2 {
-		return strings.EqualFold(l[0], constFiled.Post), l[1]
+		return strings.EqualFold(l[0], constFiled.Post), l[1], true
 	}
-	return false, name
+	return false, name, false
 }
 
 var ControllerRouterMap = map[string]*ControllerRouteType{}
 
-func Bootstrap(ControllerList ...model.ControllerData) {
+func Bootstrap(ControllerList ...ControllerData) {
 	defer utils.ErrorHandler()
 	fmt.Println("***************************************************")
 	for _, curController := range ControllerList {
@@ -59,7 +39,11 @@ func Bootstrap(ControllerList ...model.ControllerData) {
 			methodType := controllerType.Method(methodIndex)
 			methodValue := controllerValue.Method(methodIndex)
 
-			post, routeName := isPost(methodType.Name)
+			post, routeName, isRoute := isPost(methodType.Name)
+
+			if !isRoute {
+				continue
+			}
 
 			if methodValue.Type().NumIn() > 0 {
 				route.ArgType = methodValue.Type().In(0).Elem()
@@ -67,6 +51,8 @@ func Bootstrap(ControllerList ...model.ControllerData) {
 				route.ArgType = nil
 			}
 			route.IsPost = post
+
+			route.FilterList = append(route.FilterList, curController.FilterMapper[routeName]...)
 
 			routerList.RouteFunc[routeName] = route
 			httpMethod := constFiled.Get

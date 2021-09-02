@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"albumservice/albumtool"
+	"albumservice/filter"
+	"albumservice/framework/bootstrap"
 	"albumservice/framework/model"
 	"albumservice/framework/utils"
 	m "albumservice/model"
@@ -13,22 +15,40 @@ import (
 	"albumservice/model/response"
 )
 
-type AlbumManage struct {
-	SysConfig  model.SysConf
-	GlobalConf model.GlobalConf
-	model.BaseController
+type AlbumController struct {
+	SysConfig   model.SysConf
+	GlobalConf  model.GlobalConf
 	AlbumHelper albumtool.AlbumHelper
 	Request     *http.Request
-
-	IsLogin *bool
+	IsLogin     *bool
 }
 
-func NewAlbumManageController() model.BaseController {
-	o := &AlbumManage{}
+func NewAlbumManageController() bootstrap.BaseController {
+	o := &AlbumController{}
 	return o
 }
+func (controller AlbumController) GetFilterMapping() bootstrap.FilterMapping {
+	mapping := bootstrap.FilterMapping{}
 
-func (controller *AlbumManage) Post_GetAlbumList() response.AlbumListResponse {
+	mapping["AddAlbum"] = bootstrap.FilterFuncList{filter.LoginFilter}
+	mapping["BuildAlbumImage"] = bootstrap.FilterFuncList{filter.LoginFilter}
+	mapping["BuildAllAlbum"] = bootstrap.FilterFuncList{filter.LoginFilter}
+	mapping["BuildAllYears"] = bootstrap.FilterFuncList{filter.LoginFilter}
+	mapping["BuildPicForAlbum"] = bootstrap.FilterFuncList{filter.LoginFilter}
+	mapping["DeleteAlbum"] = bootstrap.FilterFuncList{filter.LoginFilter}
+	mapping["DeleteAlbumPic"] = bootstrap.FilterFuncList{filter.LoginFilter}
+	mapping["UploadImage"] = bootstrap.FilterFuncList{filter.LoginFilter}
+	mapping["UploadImagePart"] = bootstrap.FilterFuncList{filter.LoginFilter}
+
+	mapping["GetAlbumList"] = bootstrap.FilterFuncList{}
+	mapping["GetAlbumListByYear"] = bootstrap.FilterFuncList{}
+	mapping["GetAlbumPicList"] = bootstrap.FilterFuncList{}
+	mapping["GetAllYears"] = bootstrap.FilterFuncList{}
+
+	return mapping
+}
+
+func (controller *AlbumController) Post_GetAlbumList() response.AlbumListResponse {
 	defer utils.ErrorHandler()
 	albumList := controller.AlbumHelper.GetAlbumList()
 	result := response.AlbumListResponse{}
@@ -37,7 +57,7 @@ func (controller *AlbumManage) Post_GetAlbumList() response.AlbumListResponse {
 	return result
 }
 
-func (controller *AlbumManage) Post_AddAlbum(r *request.AddAlbumRequest) *response.AddAlbumResponse {
+func (controller *AlbumController) Post_AddAlbum(r *request.AddAlbumRequest) *response.AddAlbumResponse {
 	defer utils.ErrorHandler()
 	a := r.Album
 	result := new(response.AddAlbumResponse)
@@ -54,7 +74,7 @@ func (controller *AlbumManage) Post_AddAlbum(r *request.AddAlbumRequest) *respon
 	return result
 }
 
-func (controller *AlbumManage) Post_GetAlbumPicList(r *request.GetAlbumPicListRequest) *response.GetAlbumPicListResponse {
+func (controller *AlbumController) Post_GetAlbumPicList(r *request.GetAlbumPicListRequest) *response.GetAlbumPicListResponse {
 	defer utils.ErrorHandler()
 	result := new(response.GetAlbumPicListResponse)
 	if !controller.AlbumHelper.ExistsAlbum(r.AlbumName) {
@@ -68,7 +88,7 @@ func (controller *AlbumManage) Post_GetAlbumPicList(r *request.GetAlbumPicListRe
 	return result
 }
 
-func (controller *AlbumManage) Post_UploadImage(r *request.UploadPictureRequest) *response.BaseResponse {
+func (controller *AlbumController) Post_UploadImage(r *request.UploadPictureRequest) *response.BaseResponse {
 	defer utils.ErrorHandler()
 	result := new(response.BaseResponse)
 	album := controller.AlbumHelper.GetAlbum(r.AlbumName)
@@ -84,7 +104,7 @@ func (controller *AlbumManage) Post_UploadImage(r *request.UploadPictureRequest)
 	return result
 }
 
-func (controller *AlbumManage) Post_BuildAlbumImage(r *request.GetAlbumPicListRequest) *response.BaseResponse {
+func (controller *AlbumController) Post_BuildAlbumImage(r *request.GetAlbumPicListRequest) *response.BaseResponse {
 	defer utils.ErrorHandler()
 	result := new(response.BaseResponse)
 	if controller.AlbumHelper.ExistsAlbum(r.AlbumName) {
@@ -97,7 +117,7 @@ func (controller *AlbumManage) Post_BuildAlbumImage(r *request.GetAlbumPicListRe
 	return result
 }
 
-func (controller *AlbumManage) Post_DeleteAlbum(r *request.DeleteAlbumRequest) *response.BaseResponse {
+func (controller *AlbumController) Post_DeleteAlbum(r *request.DeleteAlbumRequest) *response.BaseResponse {
 	defer utils.ErrorHandler()
 	result := new(response.BaseResponse)
 	album := controller.AlbumHelper.GetAlbum(r.AlbumName)
@@ -109,7 +129,7 @@ func (controller *AlbumManage) Post_DeleteAlbum(r *request.DeleteAlbumRequest) *
 	return result
 }
 
-func (controller *AlbumManage) Post_DeleteAlbumPic(r *request.DeleteAlbumPicRequest) *response.BaseResponse {
+func (controller *AlbumController) Post_DeleteAlbumPic(r *request.DeleteAlbumPicRequest) *response.BaseResponse {
 	defer utils.ErrorHandler()
 	result := new(response.BaseResponse)
 	album := controller.AlbumHelper.GetAlbum(r.AlbumName)
@@ -118,7 +138,7 @@ func (controller *AlbumManage) Post_DeleteAlbumPic(r *request.DeleteAlbumPicRequ
 	return result
 }
 
-func (controller *AlbumManage) Post_UploadImagePart(r *request.PicturePartUploadRequest) *response.BaseResponse {
+func (controller *AlbumController) Post_UploadImagePart(r *request.PicturePartUploadRequest) *response.BaseResponse {
 	defer utils.ErrorHandler()
 	controller.AlbumHelper.CacheUploadImage(r.AlbumName, r.PictureName, r.PartIndex, r.Value)
 	if r.IsLastPart {
@@ -129,7 +149,7 @@ func (controller *AlbumManage) Post_UploadImagePart(r *request.PicturePartUpload
 	return result
 }
 
-func (controller *AlbumManage) Post_BuildAllAlbum() *response.BaseResponse {
+func (controller *AlbumController) Post_BuildAllAlbum() *response.BaseResponse {
 	defer utils.ErrorHandler()
 
 	controller.AlbumHelper.BuildAlbumList(controller.GlobalConf.AlbumPath)
@@ -138,7 +158,7 @@ func (controller *AlbumManage) Post_BuildAllAlbum() *response.BaseResponse {
 	return &result
 }
 
-func (controller *AlbumManage) Post_GetAllYears() *response.GetAllYearsResponse {
+func (controller *AlbumController) Post_GetAllYears() *response.GetAllYearsResponse {
 	defer utils.ErrorHandler()
 	result := &response.GetAllYearsResponse{}
 	result.AllYears = controller.AlbumHelper.GetAllYears()
@@ -146,7 +166,7 @@ func (controller *AlbumManage) Post_GetAllYears() *response.GetAllYearsResponse 
 	return result
 }
 
-func (controller *AlbumManage) Post_BuildAllYears() *response.BaseResponse {
+func (controller *AlbumController) Post_BuildAllYears() *response.BaseResponse {
 	defer utils.ErrorHandler()
 	controller.AlbumHelper.BuildAllYears()
 	result := &response.BaseResponse{}
@@ -154,7 +174,7 @@ func (controller *AlbumManage) Post_BuildAllYears() *response.BaseResponse {
 	return result
 }
 
-func (controller *AlbumManage) Post_BuildPicForAlbum() *response.BaseResponse {
+func (controller *AlbumController) Post_BuildPicForAlbum() *response.BaseResponse {
 	defer utils.ErrorHandler()
 	albumList := controller.AlbumHelper.GetAlbumList()
 	for _, album := range albumList {
@@ -165,7 +185,7 @@ func (controller *AlbumManage) Post_BuildPicForAlbum() *response.BaseResponse {
 	return result
 }
 
-func (controller *AlbumManage) Post_GetAlbumListByYear(r *request.GetYearAlbumListRequest) *response.AlbumListResponse {
+func (controller *AlbumController) Post_GetAlbumListByYear(r *request.GetYearAlbumListRequest) *response.AlbumListResponse {
 	result := &response.AlbumListResponse{}
 	result.AlbumList = controller.AlbumHelper.GetAlbumListByYear(r.Year)
 	result.Result = true

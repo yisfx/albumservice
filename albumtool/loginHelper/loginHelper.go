@@ -27,6 +27,11 @@ func SaveLoginToken(passwordList map[string]string, ip string) string {
 }
 
 func ValidateLoginStatus(token string) bool {
+
+	if token == "" {
+		return false
+	}
+
 	loginToken := &model.LoginToken{}
 	tokenJson := redisTool.GetString(albumtool.Login_Token_Key)
 	err := json.Unmarshal([]byte(tokenJson), loginToken)
