@@ -45,9 +45,7 @@ func Process(resp http.ResponseWriter, request *http.Request) {
 	} else {
 		a := reflect.New(routerCell.ArgType).Interface()
 		MustJSONDecode(ReadBody(request.Body), a)
-		fmt.Println("this 0")
 		args := []reflect.Value{reflect.ValueOf(a)}
-		fmt.Println("this 1", routerMethod)
 		result = routerMethod.Call(args)
 	}
 	if result == nil {

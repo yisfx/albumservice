@@ -4,6 +4,7 @@ import (
 	"albumservice/albumtool/loginHelper"
 	"albumservice/framework/bootstrap"
 	"albumservice/framework/model"
+	"albumservice/framework/utils"
 	"albumservice/model/request"
 	"albumservice/model/response"
 	"net/http"
@@ -27,8 +28,11 @@ func (controller *LoginController) GetFilterMapping() bootstrap.FilterMapping {
 	return mapping
 }
 
-func (controller *LoginController) Post_Login(r *request.LoginRequest) (result *response.LoginResponse) {
+func (controller *LoginController) Post_Login(r *request.LoginRequest) *response.LoginResponse {
 
+	result := &response.LoginResponse{}
+
+	defer utils.HanderError("Post_Login")
 	for k, v := range controller.GlobalConf.AdminPwd {
 		if p, ok := r.Password[k]; !ok || !strings.EqualFold(p, v) {
 			result.Result = false
