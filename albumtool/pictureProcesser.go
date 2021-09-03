@@ -3,16 +3,10 @@ package albumtool
 import (
 	"albumservice/albumtool/albumUtils"
 	"albumservice/framework/fileTool"
-	"albumservice/framework/model"
-	"albumservice/framework/utils"
 	albumModel "albumservice/model"
 	"albumservice/model/albumConst"
 	"time"
 )
-
-type PictureProcesser struct {
-	sysConf model.SysConf
-}
 
 var message = make(chan string)
 
@@ -32,7 +26,6 @@ func Out() {
 }
 
 func buildAlbum(albumName string) {
-	defer utils.ErrorHandler()
 	albumHelper := NewAlbumHelper()
 	album := albumHelper.GetAlbum(albumName)
 
@@ -42,7 +35,6 @@ func buildAlbum(albumName string) {
 }
 
 func BuildPicture(pic *albumModel.Picture) {
-	defer utils.ErrorHandler()
 	if !fileTool.FileExists(pic.MaxPath) {
 		albumUtils.CompressPicture(pic.OrgPath, pic.MaxPath, albumConst.MaxExtension)
 	}

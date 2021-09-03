@@ -1,7 +1,7 @@
 package interceptor
 
 import (
-	"net/http"
+	"albumservice/framework/bootstrapmodel"
 	"reflect"
 )
 
@@ -12,6 +12,6 @@ func NewDemoInterceptor() DemoInterceptor {
 	return DemoInterceptor{}
 }
 
-func (dp DemoInterceptor) Interfaceptor(request *http.Request, controller *reflect.Value) bool {
+func (dp DemoInterceptor) Interfaceptor(context *bootstrapmodel.Context, controller *reflect.Value) bool {
 	return true
 }

@@ -3,24 +3,24 @@ package configTool
 import (
 	"encoding/json"
 
+	"albumservice/framework/bootstrapmodel"
 	"albumservice/framework/fileTool"
-	"albumservice/framework/model"
 	"albumservice/framework/utils"
 )
 
 // ReadSysConf
 // 读取sysConfig
-func ReadSysConf() *model.SysConf {
-	conf := &model.SysConf{}
+func ReadSysConf() *bootstrapmodel.SysConf {
+	conf := &bootstrapmodel.SysConf{}
 	f := fileTool.GetFileContentByName("./conf/sys.conf.json")
 	json.Unmarshal([]byte(f), conf)
 	return conf
 }
 
-func ReadGlobalConf(path string) *model.GlobalConf {
-	defer utils.ErrorHandler()
+func ReadGlobalConf(path string) *bootstrapmodel.GlobalConf {
+	defer utils.HanderError()
 
-	conf := &model.GlobalConf{}
+	conf := &bootstrapmodel.GlobalConf{}
 	f := fileTool.GetFileContentByName(path)
 	json.Unmarshal([]byte(f), conf)
 	return conf

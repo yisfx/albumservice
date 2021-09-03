@@ -18,7 +18,6 @@ type AlbumHelper struct {
 
 // GetAlbumList 获取所有AlbumList
 func (albumHelper *AlbumHelper) GetAlbumList() []*model.Album {
-	defer utils.ErrorHandler()
 	albumNameList := redisTool.GetList(Album_List_Key)
 	albumList := []*model.Album{}
 	for _, albumName := range albumNameList {
@@ -37,7 +36,6 @@ func (albumHelper *AlbumHelper) GetAlbumList() []*model.Album {
 
 // GetAlbum 根据AlbumName 获取Album
 func (albumHelper *AlbumHelper) GetAlbum(albumName string) *model.Album {
-	defer utils.ErrorHandler()
 	confStr := redisTool.GetString(Album_Name_Key + albumName)
 	if confStr == "" {
 		return nil
@@ -53,7 +51,6 @@ func (albumHelper *AlbumHelper) GetAlbum(albumName string) *model.Album {
 
 // GetPicForAlbum 根据AlbumName 获取Album的PicList
 func (thialbumHelpers *AlbumHelper) GetPicForAlbum(albumName string) []model.Picture {
-	defer utils.ErrorHandler()
 	var picList []model.Picture
 	picList = []model.Picture{}
 
@@ -71,7 +68,6 @@ func (thialbumHelpers *AlbumHelper) GetPicForAlbum(albumName string) []model.Pic
 
 // BuildPicForAlbum 重建Album的Pictrue
 func (albumHelper *AlbumHelper) BuildPicForAlbum(album *model.Album) {
-	defer utils.ErrorHandler()
 	fileList := fileTool.GetFileListByPath(album.Path)
 	if fileList == nil {
 		return
@@ -101,7 +97,6 @@ func (albumHelper *AlbumHelper) BuildPicForAlbum(album *model.Album) {
 
 // BuildAlbumList 重建路径下所有的Album
 func (albumHelper *AlbumHelper) BuildAlbumList(dirPath string) {
-	defer utils.ErrorHandler()
 	pathList := fileTool.GetFloderListFromPath(dirPath)
 	if pathList == nil {
 		return
@@ -133,7 +128,6 @@ func (albumHelper *AlbumHelper) BuildAlbumList(dirPath string) {
 
 // ExistsAlbum 是否存在AlbumName
 func (albumHelper *AlbumHelper) ExistsAlbum(albumName string) bool {
-	defer utils.ErrorHandler()
 	albumList := albumHelper.GetAlbumList()
 	b := false
 	for _, a := range albumList {
@@ -147,7 +141,6 @@ func (albumHelper *AlbumHelper) ExistsAlbum(albumName string) bool {
 
 // CreateAlbum CreateAlbum
 func (albumHelper *AlbumHelper) CreateAlbum(album model.Album) {
-	defer utils.ErrorHandler()
 	///create folder
 	fileTool.CreateFolder(album.Path)
 	///write AMBUM_JSON
@@ -160,7 +153,6 @@ func (albumHelper *AlbumHelper) CreateAlbum(album model.Album) {
 
 // EditAlbum EditAlbum
 func (albumHelper *AlbumHelper) EditAlbum(album model.Album) {
-	defer utils.ErrorHandler()
 	content, _ := json.Marshal(album)
 
 	fileTool.WriteFile(string(content), path.Join(album.Path, AMBUM_JSON))
@@ -169,7 +161,6 @@ func (albumHelper *AlbumHelper) EditAlbum(album model.Album) {
 
 // AddAlbumPicture 往cache加入一个album的图片
 func (albumHelper *AlbumHelper) AddAlbumPicture(album *model.Album, pictureName string) {
-	defer utils.ErrorHandler()
 	pic := albumUtils.BuildPictureModel(album, pictureName)
 	picData, err := json.Marshal(pic)
 	if err == nil {
@@ -190,7 +181,6 @@ func (AlbumHelper *AlbumHelper) DeleteAlbum(album *model.Album) {
 
 // DeleteAlbumPic 根据 deleteType 删除 picture
 func (albumHelper *AlbumHelper) DeleteAlbumPic(album *model.Album, picName string, deleteType string) {
-	defer utils.ErrorHandler()
 	///org
 	if deleteType == model.DeleteImage {
 		fileTool.DeleteFile(album.Path + "/" + picName + albumConst.OrgExtension)
@@ -210,15 +200,11 @@ func (albumHelper *AlbumHelper) DeleteAlbumPic(album *model.Album, picName strin
 
 // CacheUploadImage 上传picture片段
 func (albumHelper *AlbumHelper) CacheUploadImage(albumName string, pictureName string, index int, cacheData string) {
-	defer utils.ErrorHandler()
 	redisTool.SetTempCache(fmt.Sprint(Picture_Cache_Key, albumName, "_", pictureName, "_", index), cacheData)
 }
 
 // BuildCacheUploadImage 保存上传的picture
 func (albumHelper *AlbumHelper) BuildCacheUploadImage(albumName string, pictureName string, lastIndex int) {
-
-	defer utils.ErrorHandler()
-
 	cacheData := *new([]string)
 	cacheKey := fmt.Sprint(Picture_Cache_Key, albumName, "_", pictureName, "_")
 	for index := 0; index <= lastIndex; index++ {
@@ -244,7 +230,6 @@ func (albumHelper *AlbumHelper) BuildCacheUploadImage(albumName string, pictureN
 
 // GetAllYears 当前上传的年份
 func (albumHelper *AlbumHelper) GetAllYears() []string {
-	defer utils.ErrorHandler()
 	var rrr = redisTool.GetList(All_Years)
 	return rrr
 }

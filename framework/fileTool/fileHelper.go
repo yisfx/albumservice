@@ -1,7 +1,6 @@
 package fileTool
 
 import (
-	"albumservice/framework/utils"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -9,7 +8,6 @@ import (
 )
 
 func GetFloderListFromPath(path string) []string {
-	defer utils.ErrorHandler()
 	fildorList, err := ioutil.ReadDir(path)
 	if err != nil {
 		return nil

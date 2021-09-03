@@ -2,13 +2,13 @@ package bootstrap
 
 import (
 	"albumservice/albumtool"
-	"albumservice/framework/model"
+	"albumservice/framework/bootstrapmodel"
 	"fmt"
 )
 
 var controllerFieldMap map[string]interface{} = make(map[string]interface{})
 
-func SetConfig(sysConfig model.SysConf, globalConfig model.GlobalConf) {
+func SetConfig(sysConfig bootstrapmodel.SysConf, globalConfig bootstrapmodel.GlobalConf) {
 	field := map[string]interface{}{}
 	field["SysConfig"] = sysConfig
 	field["GlobalConf"] = globalConfig

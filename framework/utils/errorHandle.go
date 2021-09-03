@@ -3,29 +3,34 @@ package utils
 import (
 	"fmt"
 	"runtime"
+	"runtime/debug"
 
 	log "github.com/skoo87/log4go"
 )
 
-func HanderError(funcName string) {
+func buildMsg(prefix string, err interface{}) string {
+	return fmt.Sprintf("\n [--------------------------------------------------------------------------------]\n %v:%#v \n  %s \n [--------------------------------------------------------------------------------] \n", prefix, err, debug.Stack())
+}
+
+func HanderError() interface{} {
 	err := recover()
 	if err == nil {
-		return
+		return nil
 	}
+
 	switch err.(type) {
 	case runtime.Error:
 		{ // 运行时错误
-			fmt.Println(fmt.Sprintf("%s: %s", funcName, err))
-			log.Error(fmt.Sprintf("%s: %s", funcName, err))
+			msg := buildMsg("runtime error", err)
+			fmt.Println(msg)
+			log.Error(msg)
 		}
 	default:
 		{ // 非运行时错误
-			fmt.Println(fmt.Sprintf("%s: %s", funcName, err))
-			log.Error(fmt.Sprintf("%s: %s", funcName, err))
+			msg := buildMsg("error", err)
+			fmt.Println(msg)
+			log.Error(msg)
 		}
 	}
-}
-
-func ErrorHandler() {
-	HanderError("old")
+	return err
 }

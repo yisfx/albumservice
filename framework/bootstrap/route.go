@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"albumservice/framework/constFiled"
+	"albumservice/framework/fxfilter"
 	"reflect"
 )
 
@@ -13,7 +14,7 @@ type ControllerRouteType struct {
 type RouterCell struct {
 	ArgType    reflect.Type
 	IsPost     bool
-	FilterList FilterFuncList
+	FilterList fxfilter.FilterFuncList
 }
 
 func (r RouterCell) HttpMethod() string {

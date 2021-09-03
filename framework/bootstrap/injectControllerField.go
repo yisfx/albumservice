@@ -1,13 +1,11 @@
 package bootstrap
 
 import (
-	"albumservice/framework/utils"
-	"net/http"
+	"albumservice/framework/bootstrapmodel"
 	"reflect"
 )
 
-func InjectControllerField(controllerVale *reflect.Value, request *http.Request, fields map[string]interface{}) *reflect.Value {
-	defer utils.HanderError("InjectControllerField")
+func InjectControllerField(controllerVale *reflect.Value, context *bootstrapmodel.Context, fields map[string]interface{}) *reflect.Value {
 
 	for fieldName, _ := range fields {
 		fv := controllerVale.Elem().FieldByName(fieldName)
@@ -16,9 +14,9 @@ func InjectControllerField(controllerVale *reflect.Value, request *http.Request,
 		}
 	}
 
-	fv := controllerVale.Elem().FieldByName("Request")
+	fv := controllerVale.Elem().FieldByName("Context")
 	if fv.CanSet() {
-		fv.Set(reflect.ValueOf(request))
+		fv.Set(reflect.ValueOf(context))
 	}
 	return controllerVale
 }

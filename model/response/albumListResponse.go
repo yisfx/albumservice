@@ -1,14 +1,16 @@
 package response
 
 import (
+	"albumservice/framework/bootstrapmodel"
 	model "albumservice/model"
 )
 
 type AlbumListResponse struct {
-	BaseResponse
+	bootstrapmodel.BaseResponse
 	AlbumList []*model.Album
 }
+
 type GetAlbumPicListResponse struct {
-	BaseResponse
+	bootstrapmodel.BaseResponse
 	Album model.Album
 }

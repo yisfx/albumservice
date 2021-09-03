@@ -1,14 +1,14 @@
 package bootstrap
 
 import (
-	"net/http"
+	"albumservice/framework/bootstrapmodel"
 	"reflect"
 )
 
 var interceptorList []*FXInterceptor = []*FXInterceptor{}
 
 type FXInterceptor interface {
-	Interfaceptor(request *http.Request, controller *reflect.Value) bool
+	Interfaceptor(context *bootstrapmodel.Context, controller *reflect.Value) bool
 }
 
 func AddInterceptor(interceptor ...FXInterceptor) {

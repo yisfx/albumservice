@@ -10,7 +10,7 @@ import (
 )
 
 func CompressJpgResource(orgPath string, targetPath string, quality int) {
-	defer ErrorHandler()
+
 	///org
 	orgImg, err := os.Open(orgPath)
 	if err != nil {

@@ -1,4 +1,4 @@
-package model
+package bootstrapmodel
 
 type GlobalConf struct {
 	AdminPwd  map[string]string `json:"AdminPwd"`

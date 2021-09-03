@@ -18,3 +18,7 @@ const (
 const (
 	Login_Token_Key = "login_token_key"
 )
+
+const (
+	Header_Login_Token_Key = "fx-login-token"
+)

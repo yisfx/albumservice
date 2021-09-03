@@ -2,14 +2,14 @@ package filter
 
 import (
 	"albumservice/albumtool/loginHelper"
+	"albumservice/framework/bootstrapmodel"
 	"fmt"
-	"net/http"
 )
 
-func LoginFilter(request *http.Request) bool {
-	fmt.Println("fx-login-token:", request.Header.Get("fx-login-token"))
+func LoginFilter(context *bootstrapmodel.Context) bool {
+	fmt.Println("fx-login-token:", context.Request.Header.Get("fx-login-token"))
 
-	loginToken := request.Header.Get("fx-login-token")
+	loginToken := context.Request.Header.Get("fx-login-token")
 
 	return loginHelper.ValidateLoginStatus(loginToken)
 }

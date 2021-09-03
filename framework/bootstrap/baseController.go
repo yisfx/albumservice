@@ -1,18 +1,19 @@
 package bootstrap
 
 import (
+	"albumservice/framework/fxfilter"
 	"reflect"
 )
 
 type BaseController interface {
-	GetFilterMapping() FilterMapping
+	GetFilterMapping() fxfilter.FilterMapping
 }
 
 type ControllerData struct {
 	ControllerName string
 	ControllerType reflect.Type
 	///route with filter
-	FilterMapper FilterMapping
+	FilterMapper fxfilter.FilterMapping
 }
 
 func NewControllerData(ControllerName string, Controller BaseController) *ControllerData {

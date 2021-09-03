@@ -19,7 +19,7 @@ func isPost(name string) (bool, string, bool) {
 var ControllerRouterMap = map[string]*ControllerRouteType{}
 
 func Bootstrap(ControllerList ...ControllerData) {
-	defer utils.ErrorHandler()
+	defer utils.HanderError()
 	fmt.Println("***************************************************")
 	for _, curController := range ControllerList {
 
@@ -54,7 +54,7 @@ func Bootstrap(ControllerList ...ControllerData) {
 
 			route.FilterList = append(route.FilterList, curController.FilterMapper[routeName]...)
 
-			routerList.RouteFunc[routeName] = route
+			routerList.RouteFunc[strings.ToLower(routeName)] = route
 			httpMethod := constFiled.Get
 			if post {
 				httpMethod = constFiled.Post
@@ -62,7 +62,7 @@ func Bootstrap(ControllerList ...ControllerData) {
 			fmt.Println(httpMethod, "router:", routeName, controllerName+"/"+routeName, methodValue)
 		}
 
-		ControllerRouterMap[controllerName] = routerList
+		ControllerRouterMap[strings.ToLower(controllerName)] = routerList
 	}
 	fmt.Println("***************************************************")
 	http.HandleFunc("/api/", Process)

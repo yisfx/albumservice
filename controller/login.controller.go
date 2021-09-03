@@ -3,17 +3,16 @@ package controller
 import (
 	"albumservice/albumtool/loginHelper"
 	"albumservice/framework/bootstrap"
-	"albumservice/framework/model"
-	"albumservice/framework/utils"
+	"albumservice/framework/bootstrapmodel"
+	"albumservice/framework/fxfilter"
 	"albumservice/model/request"
 	"albumservice/model/response"
-	"net/http"
 	"strings"
 )
 
 type LoginController struct {
-	GlobalConf model.GlobalConf
-	Request    *http.Request
+	GlobalConf bootstrapmodel.GlobalConf
+	Context    *bootstrapmodel.Context
 }
 
 func NewLoginController() bootstrap.BaseController {
@@ -21,18 +20,16 @@ func NewLoginController() bootstrap.BaseController {
 	return o
 }
 
-func (controller *LoginController) GetFilterMapping() bootstrap.FilterMapping {
+func (controller *LoginController) GetFilterMapping() fxfilter.FilterMapping {
 
-	mapping := bootstrap.FilterMapping{}
-
+	mapping := fxfilter.FilterMapping{}
+	// mapping["Login"] = fxfilter.FilterFuncList{filter.LoginFilter}
 	return mapping
 }
 
 func (controller *LoginController) Post_Login(r *request.LoginRequest) *response.LoginResponse {
-
 	result := &response.LoginResponse{}
 
-	defer utils.HanderError("Post_Login")
 	for k, v := range controller.GlobalConf.AdminPwd {
 		if p, ok := r.Password[k]; !ok || !strings.EqualFold(p, v) {
 			result.Result = false

@@ -1,4 +1,4 @@
-package response
+package bootstrapmodel
 
 type BaseResponse struct {
 	Result       bool

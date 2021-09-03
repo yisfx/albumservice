@@ -1,6 +1,8 @@
 package response
 
+import "albumservice/framework/bootstrapmodel"
+
 type GetAllYearsResponse struct {
-	BaseResponse
+	bootstrapmodel.BaseResponse
 	AllYears []string
 }

@@ -1,74 +1,24 @@
 package bootstrap
 
 import (
+	"albumservice/framework/bootstrapmodel"
 	"albumservice/framework/constFiled"
 	"albumservice/framework/utils"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"reflect"
 	"strings"
 )
 
-func Process(resp http.ResponseWriter, request *http.Request) {
-
-	defer utils.HanderError("Process")
-
-	controllerValue, routerMethod, routerCell, exist := getRoute(resp, request)
-
-	if !exist {
-		Response404(resp, request.Method, request)
-		return
-	}
-	///inject controller fields
-
-	controllerValue = InjectControllerField(controllerValue, request, controllerFieldMap)
-	/// interceptor
-	for _, inter := range interceptorList {
-		if !(*inter).Interfaceptor(request, controllerValue) {
-			Response415(resp, routerCell.HttpMethod(), request)
-			return
-		}
-	}
-
-	///filter
-	for _, filter := range routerCell.FilterList {
-		if !filter(request) {
-			Response415(resp, routerCell.HttpMethod(), request)
-			return
-		}
-	}
-
-	var result []reflect.Value
-	if routerCell.ArgType == nil {
-		result = routerMethod.Call(nil)
-	} else {
-		a := reflect.New(routerCell.ArgType).Interface()
-		MustJSONDecode(ReadBody(request.Body), a)
-		args := []reflect.Value{reflect.ValueOf(a)}
-		result = routerMethod.Call(args)
-	}
-	if result == nil {
-		resp.Write(([]byte)("are you ok?"))
-	} else {
-		r, err := json.Marshal(result[0].Interface())
-		if err != nil {
-			fmt.Println("err:", err)
-		}
-		resp.Write(r)
-	}
-}
-
-func MustJSONDecode(b []byte, i interface{}) {
-	err := json.Unmarshal(b, i)
-	if err != nil {
-		fmt.Println("MustJSONDecode error", string(b))
-		panic(err)
-	}
+func ReadBody(body io.Reader) []byte {
+	b, _ := ioutil.ReadAll(body)
+	return b
 }
 
 func getRoute(resp http.ResponseWriter, request *http.Request) (curController *reflect.Value, routerMethod *reflect.Value, routeCell *RouterCell, exists bool) {
-	defer utils.HanderError("getRoute")
 	isPost := false
 	httpMethodName := constFiled.Get
 	if strings.EqualFold(request.Method, constFiled.Post) {
@@ -78,12 +28,12 @@ func getRoute(resp http.ResponseWriter, request *http.Request) (curController *r
 	urls := strings.Split(request.URL.Path, "/")
 	routeBase := urls[2]
 
-	controller, hasController := ControllerRouterMap[routeBase]
+	controller, hasController := ControllerRouterMap[strings.ToLower(routeBase)]
 	if !hasController {
 		return nil, nil, nil, false
 	}
 
-	routeCell, hasRoute := controller.RouteFunc[urls[3]]
+	routeCell, hasRoute := controller.RouteFunc[strings.ToLower(urls[3])]
 
 	if !hasRoute {
 		return nil, nil, nil, false
@@ -99,4 +49,67 @@ func getRoute(resp http.ResponseWriter, request *http.Request) (curController *r
 	routeMethod := controllerVale.MethodByName(httpMethodName + "_" + urls[3])
 
 	return &controllerVale, &routeMethod, routeCell, true
+}
+
+func preProcess(context *bootstrapmodel.Context, controllerValue *reflect.Value, routerCell *RouterCell) bool {
+	/// interceptor
+	for _, inter := range interceptorList {
+		if !(*inter).Interfaceptor(context, controllerValue) {
+			Response401(context)
+			return false
+		}
+	}
+
+	///filter
+	for _, filter := range routerCell.FilterList {
+		if !filter(context) {
+			Response401(context)
+			return false
+		}
+	}
+
+	/// inject controller fields
+	InjectControllerField(controllerValue, context, controllerFieldMap)
+	return true
+}
+
+func Process(resp http.ResponseWriter, request *http.Request) {
+	defer func() {
+		if err := utils.HanderError(); err != nil {
+			fmt.Println(500)
+			resp.WriteHeader(500)
+			resp.Write([]byte("service error!"))
+		}
+	}()
+
+	controllerValue, routerMethod, routerCell, exist := getRoute(resp, request)
+
+	context := bootstrapmodel.NewContext(request, &resp)
+
+	if !exist {
+		Response404(context)
+		return
+	}
+
+	/// preProcess
+	if !preProcess(context, controllerValue, routerCell) {
+		return
+	}
+
+	var args []reflect.Value = nil
+	if routerCell.ArgType != nil {
+		a := reflect.New(routerCell.ArgType).Interface()
+		json.Unmarshal(ReadBody(request.Body), a)
+		context.RequestBody = a
+		args = []reflect.Value{reflect.ValueOf(context.RequestBody)}
+	}
+
+	/// exec controller
+	result := routerMethod.Call(args)
+
+	if result != nil {
+		context.ResponseBody = result[0].Interface()
+	}
+	///write response
+	context.ResponseSend()
 }

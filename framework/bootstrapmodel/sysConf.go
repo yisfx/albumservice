@@ -1,4 +1,4 @@
-package model
+package bootstrapmodel
 
 type SysConf struct {
 	Port         int    `json:"port"`
