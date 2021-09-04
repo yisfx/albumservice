@@ -23,5 +23,8 @@ func ReadGlobalConf(path string) *bootstrapmodel.GlobalConf {
 	conf := &bootstrapmodel.GlobalConf{}
 	f := fileTool.GetFileContentByName(path)
 	json.Unmarshal([]byte(f), conf)
+
+	utils.DESHelper.Init(conf.SHAIVOrg, conf.SHAIVOrg)
+
 	return conf
 }

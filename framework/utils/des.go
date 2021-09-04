@@ -8,21 +8,28 @@ import (
 	"fmt"
 )
 
-func DesDemo() error {
-	data := []byte("hello world")
-	key := []byte("12345678")
-	iv := []byte("43218765")
-	result, err := DESCBCEncrypt(data, key, iv)
+var DESHelper deshelper
+
+type deshelper struct {
+	key []byte
+	iv  []byte
+}
+
+func init() {
+	DESHelper = deshelper{}
+}
+
+func DesDemo(data string) error {
+	result, err := DESHelper.DESCBCEncrypt(data)
 	if err != nil {
 		return err
 	}
-	b := hex.EncodeToString(result)
-	fmt.Println("en:", b)
+	fmt.Println("en:", result)
 	//-----------------------------------
 	if err != nil {
 		return err
 	}
-	result, err = DESCBCDecrypt(result, key, iv)
+	result, err = DESHelper.DESCBCDecrypt(result)
 	if err != nil {
 		return err
 	}
@@ -30,29 +37,38 @@ func DesDemo() error {
 	return nil
 }
 
-func DESCBCEncrypt(data, key, iv []byte) ([]byte, error) {
-	block, err := des.NewCipher(key)
+func (d *deshelper) Init(k, i string) {
+	d.key = []byte(k)
+	d.iv = []byte(i)
+}
+
+func (d *deshelper) DESCBCEncrypt(str string) (string, error) {
+	data := []byte(str)
+	block, err := des.NewCipher(d.key)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	data = pkcs5Padding(data, block.BlockSize())
 	cryptText := make([]byte, len(data))
 
-	blockMode := cipher.NewCBCEncrypter(block, iv)
+	blockMode := cipher.NewCBCEncrypter(block, d.iv)
 	blockMode.CryptBlocks(cryptText, data)
-	return cryptText, nil
+	result := hex.EncodeToString(cryptText)
+	return result, nil
 }
-func DESCBCDecrypt(data, key, iv []byte) ([]byte, error) {
-	block, err := des.NewCipher(key)
+
+func (d *deshelper) DESCBCDecrypt(str string) (string, error) {
+	data, _ := hex.DecodeString(str)
+	block, err := des.NewCipher(d.key)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	blockMode := cipher.NewCBCDecrypter(block, iv)
+	blockMode := cipher.NewCBCDecrypter(block, d.iv)
 	cryptText := make([]byte, len(data))
 	blockMode.CryptBlocks(cryptText, data)
 	cryptText = pkcs5UnPadding(cryptText)
-	return cryptText, nil
+	return string(cryptText), nil
 }
 
 func pkcs5Padding(cipherText []byte, blockSize int) []byte {

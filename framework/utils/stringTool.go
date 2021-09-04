@@ -2,10 +2,20 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 )
 
-func IsExist(array []string, find string, ingoreCase bool) bool {
+var StringTool *stringTool
+
+func init() {
+	StringTool = &stringTool{}
+}
+
+type stringTool struct {
+}
+
+func (tool *stringTool) IsExist(array []string, find string, ingoreCase bool) bool {
 	for _, a := range array {
 		if a == find {
 			return true
@@ -17,10 +27,18 @@ func IsExist(array []string, find string, ingoreCase bool) bool {
 	return false
 }
 
-func SerializerToJson(i interface{}) (string, error) {
+func (tool *stringTool) SerializerToJson(i interface{}) string {
 	b, err := json.Marshal(i)
 	if err != nil {
-		return "", err
+		panic(err)
 	}
-	return string(b), nil
+	return string(b)
+}
+
+func (tool *stringTool) DeSerializerFromJson(str string, v interface{}) interface{} {
+	if err := json.Unmarshal([]byte(str), v); err != nil {
+		fmt.Println("err:", err)
+		return nil
+	}
+	return v
 }

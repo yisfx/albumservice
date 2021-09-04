@@ -24,9 +24,13 @@ func main() {
 
 	conf := configTool.ReadSysConf()
 	globalConf := configTool.ReadGlobalConf((conf.GlobalConfig))
-	fmt.Println("global config:", conf, globalConf)
+	fmt.Printf("global conf:%#v \nglobalConf:%#v\n", conf, globalConf)
+
+	// s := albumUtils.EncryptImageUri("aaa", "p", "max")
+	// fmt.Println(s)
+	// fmt.Printf("%#v \n", albumUtils.DecryptImageUri(s))
 	// fmt.Println("***************************")
-	// utils.DesDemo()
+	// utils.DesDemo("abcdefd")
 	// fmt.Println("***************************")
 	// return
 

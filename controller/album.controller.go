@@ -2,9 +2,11 @@ package controller
 
 import (
 	"path"
-	"strings"
 
 	"albumservice/albumtool"
+	"albumservice/albumtool/albumUtils"
+	"albumservice/albumtool/constfield"
+	"albumservice/albumtool/loginHelper"
 	"albumservice/filter"
 	"albumservice/framework/bootstrap"
 	"albumservice/framework/bootstrapmodel"
@@ -47,13 +49,13 @@ func (controller AlbumController) GetFilterMapping() fxfilter.FilterMapping {
 	return mapping
 }
 
-func (controller *AlbumController) Post_GetAlbumList() response.AlbumListResponse {
-	albumList := controller.AlbumHelper.GetAlbumList()
-	result := response.AlbumListResponse{}
-	result.BaseResponse.Result = true
-	result.AlbumList = albumList
-	return result
-}
+// func (controller *AlbumController) Post_GetAlbumList() response.AlbumListResponse {
+// 	albumList := controller.AlbumHelper.GetAlbumList()
+// 	result := response.AlbumListResponse{}
+// 	result.BaseResponse.Result = true
+// 	result.AlbumList = albumList
+// 	return result
+// }
 
 func (controller *AlbumController) Post_AddAlbum(r *request.AddAlbumRequest) *response.AddAlbumResponse {
 	a := r.Album
@@ -84,20 +86,20 @@ func (controller *AlbumController) Post_GetAlbumPicList(r *request.GetAlbumPicLi
 	return result
 }
 
-func (controller *AlbumController) Post_UploadImage(r *request.UploadPictureRequest) *bootstrapmodel.BaseResponse {
-	result := new(bootstrapmodel.BaseResponse)
-	album := controller.AlbumHelper.GetAlbum(r.AlbumName)
-	for _, pic := range album.PicList {
-		if strings.EqualFold(pic.Name, r.PictureName) {
-			result.Result = false
-			result.ErrorMessage = "picture exist"
-			return result
-		}
-	}
-	controller.AlbumHelper.AddAlbumPicture(album, r.PictureName)
-	result.Result = true
-	return result
-}
+// func (controller *AlbumController) Post_UploadImage(r *request.UploadPictureRequest) *bootstrapmodel.BaseResponse {
+// 	result := new(bootstrapmodel.BaseResponse)
+// 	album := controller.AlbumHelper.GetAlbum(r.AlbumName)
+// 	for _, pic := range album.PicList {
+// 		if strings.EqualFold(pic.Name, r.PictureName) {
+// 			result.Result = false
+// 			result.ErrorMessage = "picture exist"
+// 			return result
+// 		}
+// 	}
+// 	controller.AlbumHelper.AddAlbumPicture(album, r.PictureName)
+// 	result.Result = true
+// 	return result
+// }
 
 func (controller *AlbumController) Post_BuildAlbumImage(r *request.GetAlbumPicListRequest) *bootstrapmodel.BaseResponse {
 	result := new(bootstrapmodel.BaseResponse)
@@ -174,6 +176,15 @@ func (controller *AlbumController) Post_BuildPicForAlbum() *bootstrapmodel.BaseR
 func (controller *AlbumController) Post_GetAlbumListByYear(r *request.GetYearAlbumListRequest) *response.AlbumListResponse {
 	result := &response.AlbumListResponse{}
 	result.AlbumList = controller.AlbumHelper.GetAlbumListByYear(r.Year)
+
+	///if not login encrypt image
+	if loginHelper.ValidateLoginStatus(controller.Context.GetParam(constfield.Header_Login_Token_Key)) {
+		for _, album := range result.AlbumList {
+			// album.Cover=
+			album.CNName = albumUtils.EncryptAlbumName(album.Name)
+			album.Name = album.CNName
+		}
+	}
 	result.Result = true
 	return result
 }

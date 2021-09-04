@@ -1,4 +1,4 @@
-package albumtool
+package constfield
 
 const AMBUM_JSON = "album.json"
 const (

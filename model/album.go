@@ -24,3 +24,10 @@ const (
 	DeleteImage        = "Image"
 	DeleteAbbreviation = "Abbreviation"
 )
+
+type PictureUri struct {
+	AlbumName string `json:"a"`
+	Name      string `json:"n"`
+	Type      string `json:"t"`
+	Datetime  string `json:"d"`
+}
