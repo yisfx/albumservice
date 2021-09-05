@@ -81,6 +81,20 @@ func (controller *AlbumController) Post_GetAlbumPicList(r *request.GetAlbumPicLi
 	} else {
 		result.BaseResponse.Result = true
 		result.Album = *controller.AlbumHelper.GetAlbum(r.AlbumName)
+
+		if !loginHelper.ValidateLoginStatus(controller.Context.GetParam(constfield.Header_Login_Token_Key)) {
+			for _, pic := range result.Album.PicList {
+				pic.Album = ""
+				pic.OrgPath = ""
+				pic.MaxPath = albumUtils.EncryptImageUri(result.Album.Name, pic.Name, "max")
+				pic.MiniPath = albumUtils.EncryptImageUri(result.Album.Name, pic.Name, "mini")
+				pic.Name = ""
+			}
+			result.Album.Cover = ""
+			result.Album.Name = result.Album.CNName
+			result.Album.CNName = ""
+			result.Album.Path = ""
+		}
 	}
 
 	return result

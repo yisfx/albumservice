@@ -51,9 +51,8 @@ func (albumHelper *AlbumHelper) GetAlbum(albumName string) *model.Album {
 }
 
 // GetPicForAlbum 根据AlbumName 获取Album的PicList
-func (thialbumHelpers *AlbumHelper) GetPicForAlbum(albumName string) []model.Picture {
-	var picList []model.Picture
-	picList = []model.Picture{}
+func (thialbumHelpers *AlbumHelper) GetPicForAlbum(albumName string) []*model.Picture {
+	picList := []*model.Picture{}
 
 	picNameList := redisTool.GetList(constfield.Album_Picture_List_Key + albumName)
 	for _, picName := range picNameList {
@@ -61,7 +60,7 @@ func (thialbumHelpers *AlbumHelper) GetPicForAlbum(albumName string) []model.Pic
 		str := redisTool.GetString(constfield.Picture_Key + picName)
 		json.Unmarshal([]byte(str), pic)
 		if pic != nil {
-			picList = append(picList, *pic)
+			picList = append(picList, pic)
 		}
 	}
 	return picList

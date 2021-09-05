@@ -30,7 +30,7 @@ func buildAlbum(albumName string) {
 	album := albumHelper.GetAlbum(albumName)
 
 	for _, pic := range album.PicList {
-		BuildPicture(&pic)
+		BuildPicture(pic)
 	}
 }
 

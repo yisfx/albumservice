@@ -7,7 +7,7 @@ type Album struct {
 	Cover       string
 	Date        string
 	Path        string
-	PicList     []Picture
+	PicList     []*Picture
 	Description string
 }
 
