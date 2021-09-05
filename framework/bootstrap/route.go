@@ -15,6 +15,8 @@ type RouterCell struct {
 	ArgType    reflect.Type
 	IsPost     bool
 	FilterList fxfilter.FilterFuncList
+
+	RouterMethodName string
 }
 
 func (r RouterCell) HttpMethod() string {

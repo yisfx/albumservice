@@ -5,7 +5,6 @@ import (
 	"albumservice/framework/constFiled"
 	"albumservice/framework/utils"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -20,10 +19,8 @@ func ReadBody(body io.Reader) []byte {
 
 func getRoute(resp http.ResponseWriter, request *http.Request) (curController *reflect.Value, routerMethod *reflect.Value, routeCell *RouterCell, exists bool) {
 	isPost := false
-	httpMethodName := constFiled.Get
 	if strings.EqualFold(request.Method, constFiled.Post) {
 		isPost = true
-		httpMethodName = constFiled.Post
 	}
 	urls := strings.Split(request.URL.Path, "/")
 	routeBase := urls[2]
@@ -46,7 +43,7 @@ func getRoute(resp http.ResponseWriter, request *http.Request) (curController *r
 	//new controller
 	controllerVale := reflect.New(controller.ControllerType.Elem())
 
-	routeMethod := controllerVale.MethodByName(httpMethodName + "_" + urls[3])
+	routeMethod := controllerVale.MethodByName(routeCell.RouterMethodName)
 
 	return &controllerVale, &routeMethod, routeCell, true
 }
@@ -74,13 +71,7 @@ func preProcess(context *bootstrapmodel.Context, controllerValue *reflect.Value,
 }
 
 func Process(resp http.ResponseWriter, request *http.Request) {
-	defer func() {
-		if err := utils.HanderError(); err != nil {
-			fmt.Println(500)
-			resp.WriteHeader(500)
-			resp.Write([]byte("service error!"))
-		}
-	}()
+	defer utils.HanderError()
 
 	controllerValue, routerMethod, routerCell, exist := getRoute(resp, request)
 
@@ -99,9 +90,9 @@ func Process(resp http.ResponseWriter, request *http.Request) {
 	var args []reflect.Value = nil
 	if routerCell.ArgType != nil {
 		a := reflect.New(routerCell.ArgType).Interface()
-		json.Unmarshal(ReadBody(request.Body), a)
+		MustJSONDecode(ReadBody(request.Body), a)
 		context.RequestBody = a
-		args = []reflect.Value{reflect.ValueOf(context.RequestBody)}
+		args = []reflect.Value{reflect.ValueOf(a)}
 	}
 
 	/// exec controller
@@ -112,4 +103,10 @@ func Process(resp http.ResponseWriter, request *http.Request) {
 	}
 	///write response
 	context.ResponseSend()
+}
+func MustJSONDecode(b []byte, i interface{}) {
+	err := json.Unmarshal(b, i)
+	if err != nil {
+		panic(err)
+	}
 }

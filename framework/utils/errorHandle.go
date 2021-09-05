@@ -22,13 +22,13 @@ func HanderError() interface{} {
 	case runtime.Error:
 		{ // 运行时错误
 			msg := buildMsg("runtime error", err)
-			fmt.Println(msg)
+			// fmt.Println(msg)
 			log.Error(msg)
 		}
 	default:
 		{ // 非运行时错误
 			msg := buildMsg("error", err)
-			fmt.Println(msg)
+			// fmt.Println(msg)
 			log.Error(msg)
 		}
 	}

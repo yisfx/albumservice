@@ -53,7 +53,7 @@ func Bootstrap(ControllerList ...ControllerData) {
 			route.IsPost = post
 
 			route.FilterList = append(route.FilterList, curController.FilterMapper[routeName]...)
-
+			route.RouterMethodName = methodType.Name
 			routerList.RouteFunc[strings.ToLower(routeName)] = route
 			httpMethod := constFiled.Get
 			if post {

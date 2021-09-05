@@ -25,7 +25,7 @@ func (dc *DemoController) Get_Demo2() {
 }
 
 func (dc *DemoController) Post_Demo3(request *bootstrapmodel.BaseResponse) *bootstrapmodel.BaseResponse {
-	fmt.Printf("%#v \n", request)
+	fmt.Printf("demo request %#v \n", request)
 	fmt.Println(dc.Context.Request.URL.Path)
 
 	dc.Context.ResponseBody = "ffffffffffff"
