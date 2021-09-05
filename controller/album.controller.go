@@ -178,11 +178,12 @@ func (controller *AlbumController) Post_GetAlbumListByYear(r *request.GetYearAlb
 	result.AlbumList = controller.AlbumHelper.GetAlbumListByYear(r.Year)
 
 	///if not login encrypt image
-	if loginHelper.ValidateLoginStatus(controller.Context.GetParam(constfield.Header_Login_Token_Key)) {
+	if !loginHelper.ValidateLoginStatus(controller.Context.GetParam(constfield.Header_Login_Token_Key)) {
 		for _, album := range result.AlbumList {
-			// album.Cover=
+			album.Cover = albumUtils.EncryptImageUri(album.Name, album.Cover, "max")
 			album.CNName = albumUtils.EncryptAlbumName(album.Name)
 			album.Name = album.CNName
+			album.PicList = nil
 		}
 	}
 	result.Result = true
