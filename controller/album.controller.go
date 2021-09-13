@@ -11,7 +11,7 @@ import (
 	"albumservice/framework/bootstrap"
 	"albumservice/framework/bootstrapmodel"
 	"albumservice/framework/fxfilter"
-	m "albumservice/model"
+	"albumservice/model"
 	"albumservice/model/request"
 	"albumservice/model/response"
 )
@@ -48,14 +48,6 @@ func (controller AlbumController) GetFilterMapping() fxfilter.FilterMapping {
 
 	return mapping
 }
-
-// func (controller *AlbumController) Post_GetAlbumList() response.AlbumListResponse {
-// 	albumList := controller.AlbumHelper.GetAlbumList()
-// 	result := response.AlbumListResponse{}
-// 	result.BaseResponse.Result = true
-// 	result.AlbumList = albumList
-// 	return result
-// }
 
 func (controller *AlbumController) Post_AddAlbum(r *request.AddAlbumRequest) *response.AddAlbumResponse {
 	a := r.Album
@@ -100,21 +92,6 @@ func (controller *AlbumController) Post_GetAlbumPicList(r *request.GetAlbumPicLi
 	return result
 }
 
-// func (controller *AlbumController) Post_UploadImage(r *request.UploadPictureRequest) *bootstrapmodel.BaseResponse {
-// 	result := new(bootstrapmodel.BaseResponse)
-// 	album := controller.AlbumHelper.GetAlbum(r.AlbumName)
-// 	for _, pic := range album.PicList {
-// 		if strings.EqualFold(pic.Name, r.PictureName) {
-// 			result.Result = false
-// 			result.ErrorMessage = "picture exist"
-// 			return result
-// 		}
-// 	}
-// 	controller.AlbumHelper.AddAlbumPicture(album, r.PictureName)
-// 	result.Result = true
-// 	return result
-// }
-
 func (controller *AlbumController) Post_BuildAlbumImage(r *request.GetAlbumPicListRequest) *bootstrapmodel.BaseResponse {
 	result := new(bootstrapmodel.BaseResponse)
 	if controller.AlbumHelper.ExistsAlbum(r.AlbumName) {
@@ -131,7 +108,7 @@ func (controller *AlbumController) Post_DeleteAlbum(r *request.DeleteAlbumReques
 	result := new(bootstrapmodel.BaseResponse)
 	album := controller.AlbumHelper.GetAlbum(r.AlbumName)
 	for _, pic := range album.PicList {
-		controller.AlbumHelper.DeleteAlbumPic(album, pic.Name, m.DeleteImage)
+		controller.AlbumHelper.DeleteAlbumPic(album, pic.Name, model.DeleteImage)
 	}
 	controller.AlbumHelper.DeleteAlbum(album)
 	result.Result = true

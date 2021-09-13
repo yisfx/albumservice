@@ -71,11 +71,20 @@ func preProcess(context *bootstrapmodel.Context, controllerValue *reflect.Value,
 }
 
 func Process(resp http.ResponseWriter, request *http.Request) {
-	defer utils.HanderError()
-
-	controllerValue, routerMethod, routerCell, exist := getRoute(resp, request)
 
 	context := bootstrapmodel.NewContext(request, &resp)
+
+	defer func() {
+		err := recover()
+		if err != nil {
+			resp.WriteHeader(500)
+			utils.ProcessError(err)
+			Response500(context)
+		}
+
+	}()
+
+	controllerValue, routerMethod, routerCell, exist := getRoute(resp, request)
 
 	if !exist {
 		Response404(context)

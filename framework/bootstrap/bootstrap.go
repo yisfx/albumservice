@@ -31,7 +31,7 @@ func Bootstrap(ControllerList ...ControllerData) {
 
 		var controllerValue reflect.Value = reflect.New(curController.ControllerType).Elem()
 		controllerType := curController.ControllerType
-		fmt.Println("controller :", controllerName, ", methods:", controllerValue.NumMethod())
+		fmt.Printf("controller \t %v \t method  count \t %v \t \n", controllerName, controllerValue.NumMethod())
 		for methodIndex := 0; methodIndex < controllerValue.NumMethod(); methodIndex++ {
 
 			route := &RouterCell{}
@@ -59,11 +59,10 @@ func Bootstrap(ControllerList ...ControllerData) {
 			if post {
 				httpMethod = constFiled.Post
 			}
-			fmt.Println(httpMethod, "router:", routeName, controllerName+"/"+routeName, methodValue)
+			fmt.Printf("\t %v \t route:%v \t %v \n", httpMethod, controllerName+"/"+routeName, methodType.Name)
 		}
-
+		fmt.Println("--------------------------------------------------------")
 		ControllerRouterMap[strings.ToLower(controllerName)] = routerList
 	}
-	fmt.Println("***************************************************")
 	http.HandleFunc("/api/", Process)
 }

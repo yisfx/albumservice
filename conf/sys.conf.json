@@ -1,4 +1,4 @@
 {
     "port": 9001,
-    "GlobalConfig": "C://Users//wangs//Desktop//album//global.setting.json"
+    "GlobalConfig": "/home/fx/fx-github/global.setting.json"
 }

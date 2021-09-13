@@ -6,7 +6,6 @@ import (
 	"albumservice/framework/bootstrap"
 	"albumservice/framework/bootstrapmodel"
 	"albumservice/framework/fxfilter"
-	"albumservice/framework/utils"
 	"albumservice/model/request"
 	"albumservice/model/response"
 	"strings"
@@ -30,10 +29,7 @@ func (controller *LoginController) GetFilterMapping() fxfilter.FilterMapping {
 }
 
 func (controller *LoginController) Post_Login(r *request.LoginRequest) *response.LoginResponse {
-	defer utils.HanderError()
-
 	result := &response.LoginResponse{}
-
 	for k, v := range controller.GlobalConf.AdminPwd {
 		if p, ok := r.Password[k]; !ok || !strings.EqualFold(p, v) {
 			result.Result = false
@@ -41,7 +37,7 @@ func (controller *LoginController) Post_Login(r *request.LoginRequest) *response
 			return result
 		}
 	}
-
+	result.Result = true
 	result.LoginToken = loginHelper.SaveLoginToken(r.Password, r.IP)
 	return result
 }
