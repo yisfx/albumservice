@@ -49,6 +49,7 @@ func main() {
 		*bootstrap.NewControllerData("Manage", controller.NewAlbumManageController()),
 		*bootstrap.NewControllerData("Login", controller.NewLoginController()),
 		*bootstrap.NewControllerData("Demo", controller.NewDemoController()),
+		*bootstrap.NewControllerData("Entry", controller.NewEntryController()),
 	)
 
 	http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
