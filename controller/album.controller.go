@@ -5,8 +5,6 @@ import (
 
 	"albumservice/albumtool"
 	"albumservice/albumtool/albumUtils"
-	"albumservice/albumtool/constfield"
-	"albumservice/albumtool/loginHelper"
 	"albumservice/filter"
 	"albumservice/framework/bootstrap"
 	"albumservice/framework/bootstrapmodel"
@@ -40,10 +38,11 @@ func (controller AlbumController) GetFilterMapping() fxfilter.FilterMapping {
 	mapping["DeleteAlbumPic"] = fxfilter.FilterFuncList{filter.LoginFilter}
 	mapping["UploadImage"] = fxfilter.FilterFuncList{filter.LoginFilter}
 	mapping["UploadImagePart"] = fxfilter.FilterFuncList{filter.LoginFilter}
+	mapping["GetAlbumListByYear"] = fxfilter.FilterFuncList{filter.LoginFilter}
+	mapping["GetAlbumPicList"] = fxfilter.FilterFuncList{filter.LoginFilter}
 
 	mapping["GetAlbumList"] = fxfilter.FilterFuncList{}
-	mapping["GetAlbumListByYear"] = fxfilter.FilterFuncList{}
-	mapping["GetAlbumPicList"] = fxfilter.FilterFuncList{}
+
 	mapping["GetAllYears"] = fxfilter.FilterFuncList{}
 
 	return mapping
@@ -67,26 +66,41 @@ func (controller *AlbumController) Post_AddAlbum(r *request.AddAlbumRequest) *re
 
 func (controller *AlbumController) Post_GetAlbumPicList(r *request.GetAlbumPicListRequest) *response.GetAlbumPicListResponse {
 	result := new(response.GetAlbumPicListResponse)
+
 	if !controller.AlbumHelper.ExistsAlbum(r.AlbumName) {
 		result.BaseResponse.Result = false
 		result.BaseResponse.ErrorMessage = "hasn't this Album"
 	} else {
 		result.BaseResponse.Result = true
 		result.Album = *controller.AlbumHelper.GetAlbum(r.AlbumName)
+	}
 
-		if !loginHelper.ValidateLoginStatus(controller.Context.GetParam(constfield.Header_Login_Token_Key)) {
-			for _, pic := range result.Album.PicList {
-				pic.Album = ""
-				pic.OrgPath = ""
-				pic.MaxPath = albumUtils.EncryptImageUri(result.Album.Name, pic.Name, "max")
-				pic.MiniPath = albumUtils.EncryptImageUri(result.Album.Name, pic.Name, "mini")
-				pic.Name = ""
-			}
-			result.Album.Cover = ""
-			result.Album.Name = result.Album.CNName
-			result.Album.CNName = ""
-			result.Album.Path = ""
+	return result
+}
+
+func (controller *AlbumController) Post_GetEntryAlbumPicList(r *request.GetAlbumPicListRequest) *response.GetAlbumPicListResponse {
+	result := new(response.GetAlbumPicListResponse)
+
+	albumName, _ := albumUtils.DecryptAlbumName(r.AlbumName)
+
+	if !controller.AlbumHelper.ExistsAlbum(albumName) {
+		result.BaseResponse.Result = false
+		result.BaseResponse.ErrorMessage = "hasn't this Album"
+	} else {
+		result.BaseResponse.Result = true
+		result.Album = *controller.AlbumHelper.GetAlbum(albumName)
+
+		for _, pic := range result.Album.PicList {
+			pic.Album = ""
+			pic.OrgPath = ""
+			pic.MaxPath = albumUtils.EncryptImageUri(result.Album.Name, pic.Name, "max")
+			pic.MiniPath = albumUtils.EncryptImageUri(result.Album.Name, pic.Name, "mini")
+			pic.Name = ""
 		}
+		result.Album.Cover = ""
+		result.Album.Name = result.Album.CNName
+		result.Album.CNName = ""
+		result.Album.Path = ""
 	}
 
 	return result
@@ -168,15 +182,19 @@ func (controller *AlbumController) Post_GetAlbumListByYear(r *request.GetYearAlb
 	result := &response.AlbumListResponse{}
 	result.AlbumList = controller.AlbumHelper.GetAlbumListByYear(r.Year)
 
-	///if not login encrypt image
-	if !loginHelper.ValidateLoginStatus(controller.Context.GetParam(constfield.Header_Login_Token_Key)) {
-		for _, album := range result.AlbumList {
-			album.Cover = albumUtils.EncryptImageUri(album.Name, album.Cover, "max")
-			album.CNName = albumUtils.EncryptAlbumName(album.Name)
-			album.Name = album.CNName
-			album.PicList = nil
-		}
+	result.Result = true
+	return result
+}
+func (controller *AlbumController) Post_GetEntryAlbumListByYear(r *request.GetYearAlbumListRequest) *response.AlbumListResponse {
+	result := &response.AlbumListResponse{}
+	result.AlbumList = controller.AlbumHelper.GetAlbumListByYear(r.Year)
+
+	for _, album := range result.AlbumList {
+		album.Cover = albumUtils.EncryptImageUri(album.Name, album.Cover, "max")
+		album.Name = albumUtils.EncryptAlbumName(album.Name)
+		album.PicList = nil
 	}
+
 	result.Result = true
 	return result
 }

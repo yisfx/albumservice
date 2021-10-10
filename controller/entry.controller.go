@@ -26,6 +26,7 @@ func (controller *EntryController) Post_DeEntry(r *request.DeEntryImageRequest) 
 	result := response.DeEntryImageResponse{}
 	i := albumUtils.DecryptImageUri(r.V)
 	result.Result = true
-	result.Image = *i
+	result.ImagePath = i.AlbumName + "/" + i.Name + "-" + i.Type
+
 	return &result
 }
