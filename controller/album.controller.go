@@ -156,7 +156,22 @@ func (controller *AlbumController) Post_BuildAllAlbum() *bootstrapmodel.BaseResp
 
 func (controller *AlbumController) Post_GetAllYears() *response.GetAllYearsResponse {
 	result := &response.GetAllYearsResponse{}
-	result.AllYears = controller.AlbumHelper.GetAllYears()
+	yearList := controller.AlbumHelper.GetAllYears()
+	result.AllYears = []response.YearAlbumList{}
+	for _, year := range yearList {
+		albumList := controller.AlbumHelper.GetAlbumListByYear(year)
+		al := []model.Album{}
+		for _, album := range albumList {
+			album.Cover = ""
+			album.Name = albumUtils.EncryptAlbumName(album.Name)
+			album.PicList = nil
+			album.Path = ""
+			al = append(al, *album)
+		}
+		alm := response.YearAlbumList{Year: year, AlbumList: al}
+
+		result.AllYears = append(result.AllYears, alm)
+	}
 	result.Result = true
 	return result
 }

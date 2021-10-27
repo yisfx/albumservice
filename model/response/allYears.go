@@ -1,8 +1,16 @@
 package response
 
-import "albumservice/framework/bootstrapmodel"
+import (
+	"albumservice/framework/bootstrapmodel"
+	"albumservice/model"
+)
 
 type GetAllYearsResponse struct {
 	bootstrapmodel.BaseResponse
-	AllYears []string
+	AllYears []YearAlbumList
+}
+
+type YearAlbumList struct {
+	Year      string
+	AlbumList []model.Album
 }
