@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path"
+	"sort"
 	"strings"
 )
 
@@ -261,7 +262,9 @@ func (albumHeler *AlbumHelper) GetAlbumListByYear(year string) []*model.Album {
 	for _, albumName := range albumNameList {
 		result = append(result, albumHeler.GetAlbum(albumName))
 	}
-	return result
+	l := model.AlbumList(result)
+	sort.Sort(l)
+	return l
 }
 
 func NewAlbumHelper() *AlbumHelper {
