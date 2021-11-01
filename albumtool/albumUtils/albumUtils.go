@@ -60,7 +60,7 @@ func DecryptAlbumName(s string) (string, *utils.Date) {
 }
 
 func EncryptImageUri(albumName, pictureName, ex string) string {
-	p := &model.PictureUri{AlbumName: albumName, Name: pictureName, Type: ex, Datetime: utils.DateTime.Now().ToString()}
+	p := &model.PictureUri{AlbumName: albumName, Name: pictureName, Type: ex, Datetime: utils.DateTime.GetDay()}
 	uri, err := utils.DESHelper.DESCBCEncrypt(utils.StringTool.SerializerToJson(p))
 	if err != nil {
 		panic(err)

@@ -114,3 +114,11 @@ func (d *dateTime) Now() *Date {
 		Second: t.Second(),
 	}
 }
+
+func (d *dateTime) GetDay() string {
+
+	dd := d.Now()
+	dd.Second = 0
+	dd.Min = 0
+	return dd.ToString()
+}
