@@ -8,6 +8,7 @@ type GlobalConf struct {
 	SHAKey    string            `json:"SHAKey"`
 	SHAIV     string            `json:"SHAIV"`
 	Redis     RedisConf         `json:"RedisConf"`
+	WordFile  string            `json:"WordFile"`
 }
 
 type RedisConf struct {

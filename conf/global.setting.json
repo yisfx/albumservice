@@ -1,0 +1,15 @@
+{
+    "WordFile": "E:/goworkspace/src/cn.fx.albumservice/conf/word.json",
+    "AdminPwd": {
+        "A": "a"
+    },
+    "AlbumPath": "",
+    "SHAKEYOrg": "",
+    "SHAIVOrg":"",
+    "SHAKey":"",
+    "SHAIV":"",
+    "Redis":{
+        "Port":8440,
+        "Pwd":""
+    }
+}

@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"runtime"
+	"strings"
 
 	log "github.com/skoo87/log4go"
 )
@@ -34,12 +36,15 @@ func main() {
 	// fmt.Println("***************************")
 	// return
 
-	redisClient := redisTool.RedisConnect(globalConf.Redis.Port, globalConf.Redis.Pwd)
-	if redisClient.PoolStats().TotalConns < 1 {
-		log.Error("redis connect failure")
-		return
+
+	if !strings.EqualFold(runtime.GOOS ,"windows") {
+		redisClient := redisTool.RedisConnect(globalConf.Redis.Port, globalConf.Redis.Pwd)
+		if redisClient.PoolStats().TotalConns < 1 {
+			log.Error("redis connect failure")
+			return
+		}
+		defer redisClient.Close()
 	}
-	defer redisClient.Close()
 
 	bootstrap.SetConfig(*conf, *globalConf)
 
@@ -50,6 +55,7 @@ func main() {
 		*bootstrap.NewControllerData("Login", controller.NewLoginController()),
 		*bootstrap.NewControllerData("Demo", controller.NewDemoController()),
 		*bootstrap.NewControllerData("Entry", controller.NewEntryController()),
+		*bootstrap.NewControllerData("Word", controller.NewWordController()),
 	)
 
 	http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
